@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue + Spring Boot Webアプリ 要件案</title>
+  <style>
+    :root {
+      --text: #000000;
+      --bg: #ffffff;
+      --table-head: #e5e7eb;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "MS Gothic", "Meiryo", sans-serif;
+      line-height: 1.5;
+    }
+
+    main {
+      width: 1366px;
+      margin: 0 auto;
+    }
+
+    .slide {
+      width: 1366px;
+      height: 768px;
+      aspect-ratio: 16 / 9;
+      overflow: visible;
+      box-sizing: border-box;
+      padding: 48px 72px;
+      background: #ffffff;
+      color: #000000;
+      position: relative;
+      border-bottom: 1px solid #000000;
+    }
+
+    .cover-title {
+      font-size: 60pt;
+      font-weight: 700;
+      margin: 0 0 24px 0;
+    }
+
+    .cover-subtitle {
+      font-size: 32pt;
+      margin: 0 0 24px 0;
+    }
+
+    .cover-meta {
+      font-size: 20pt;
+      margin: 0;
+      font-family: Calibri, Arial, sans-serif;
+    }
+
+    .toc-title,
+    .body-title,
+    .end-title {
+      font-size: 44pt;
+      font-weight: 700;
+      margin: 0 0 20px 0;
+    }
+
+    .toc-list {
+      margin: 0;
+      padding-left: 42px;
+      font-size: 24pt;
+    }
+
+    .toc-list li {
+      margin: 8px 0;
+    }
+
+    .toc-no {
+      font-size: 20pt;
+      font-family: Calibri, Arial, sans-serif;
+    }
+
+    .section-title {
+      font-size: 28pt;
+      font-weight: 700;
+      margin: 0 0 10px 0;
+    }
+
+    p,
+    li {
+      font-size: 18pt;
+      margin: 0 0 12pt 0;
+    }
+
+    .emph {
+      font-size: 18pt;
+      font-weight: 700;
+    }
+
+    .subtext {
+      font-size: 14pt;
+      margin: 0 0 12pt 0;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 0;
+      list-style: none;
+    }
+
+    ul li::before {
+      content: "・";
+      margin-right: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #000000;
+      margin-top: 8px;
+    }
+
+    th {
+      background: #e5e7eb;
+      color: #000000;
+      font-size: 16pt;
+      font-weight: 700;
+      border-bottom: 1px solid #000000;
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    td {
+      background: #ffffff;
+      color: #000000;
+      font-size: 14pt;
+      border-bottom: 1px solid #000000;
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+
+    .page-no {
+      position: absolute;
+      right: 24px;
+      bottom: 16px;
+      font-family: Calibri, Arial, sans-serif;
+      font-size: 12pt;
+    }
+
+    .footer {
+      position: absolute;
+      left: 24px;
+      bottom: 16px;
+      font-family: Calibri, Arial, sans-serif;
+      font-size: 10pt;
+    }
+
+    .end-main {
+      font-size: 32pt;
+      margin: 12px 0 16px 0;
+    }
+
+    .image-grid {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .image-block {
+      width: 32%;
+    }
+
+    .image-note {
+      font-size: 14pt;
+      margin: 0 0 8px 0;
+    }
+
+    .screen-image {
+      width: 100%;
+      max-height: 240px;
+      object-fit: contain;
+      border: 1px solid #000000;
+      display: block;
+      background: #ffffff;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <!-- slide:1:start -->
+    <section class="slide" data-slide="1" data-type="cover">
+      <h1 class="cover-title">Webアプリ要件案</h1>
+      <p class="cover-subtitle">Vue + Spring Boot + 外部API連携</p>
+      <p class="cover-meta">2026-07-04 / 要件整理ドラフト</p>
+    </section>
+    <!-- slide:1:end -->
+
+    <!-- slide:2:start -->
+    <section class="slide" data-slide="2" data-type="toc">
+      <h2 class="toc-title">目次</h2>
+      <ol class="toc-list">
+        <li><span class="toc-no">1.</span> システム概要と前提</li>
+        <li><span class="toc-no">2.</span> 機能要件</li>
+        <li><span class="toc-no">3.</span> 画面案（画面別）</li>
+        <li><span class="toc-no">4.</span> 画面遷移</li>
+        <li><span class="toc-no">5.</span> 画面レイアウト案</li>
+        <li><span class="toc-no">6.</span> API連携要件</li>
+        <li><span class="toc-no">7.</span> 非機能要件</li>
+        <li><span class="toc-no">8.</span> 画面イメージ</li>
+      </ol>
+    </section>
+    <!-- slide:2:end -->
+
+    <!-- slide:3:start -->
+    <section class="slide" data-slide="3" data-type="body">
+      <h2 class="body-title">1. システム概要と前提</h2>
+      <ul>
+        <li>フロントエンドは Vue 3 + TypeScript</li>
+        <li>バックエンドは Spring Boot</li>
+        <li>外部APIを対向システムとして利用</li>
+        <li>画面は SPA、API は BFF 経由で接続</li>
+      </ul>
+      <p class="section-title">主要コンポーネント</p>
+      <ul>
+        <li>Web UI / 認証API / ユーザ管理API</li>
+        <li>取引参照API / 取引登録API / DB</li>
+      </ul>
+      <div class="footer">要件案 v0.1</div>
+      <div class="page-no">ページ3 / 全15</div>
+    </section>
+    <!-- slide:3:end -->
+
+    <!-- slide:4:start -->
+    <section class="slide" data-slide="4" data-type="body">
+      <h2 class="body-title">2. 機能要件（全体）</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>機能区分</th>
+            <th>概要</th>
+            <th>備考</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>認証</td>
+            <td>OAuth2 でログイン/ログアウト</td>
+            <td>認証処理はバックエンドで実施</td>
+          </tr>
+          <tr>
+            <td>ユーザ管理</td>
+            <td>自前ユーザテーブルをCRUD管理</td>
+            <td>権限ロールも自システムで管理</td>
+          </tr>
+          <tr>
+            <td>取引情報参照</td>
+            <td>一覧/詳細を外部APIから取得</td>
+            <td>検索条件とページング対応</td>
+          </tr>
+          <tr>
+            <td>取引登録</td>
+            <td>入力内容を外部APIへ送信</td>
+            <td>登録結果とエラーを画面表示</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="footer">要件案 v0.1</div>
+      <div class="page-no">ページ4 / 全15</div>
+    </section>
+    <!-- slide:4:end -->
+
+    <!-- slide:5:start -->
+    <section class="slide" data-slide="5" data-type="body">
+      <h2 class="body-title">3. 認証・認可要件</h2>
+      <p class="section-title">認証方式</p>
+      <ul>
+        <li>OAuth2 Authorization Code + PKCE</li>
+        <li>トークン管理はバックエンドで実施</li>
+        <li>セッションは HttpOnly Cookie で保持</li>
+      </ul>
+      <p class="section-title">認可方式</p>
+      <ul>
+        <li>ロール: 管理者 / 一般ユーザ</li>
+        <li>画面・APIにロールベース制御を適用</li>
+        <li>監査ログにログイン/操作結果を記録</li>
+      </ul>
+      <div class="footer">要件案 v0.1</div>
+      <div class="page-no">ページ5 / 全15</div>
+    </section>
+    <!-- slide:5:end -->
+
+    <!-- slide:6:start -->
+    <section class="slide" data-slide="6" data-type="body">
+      <h2 class="body-title">4. ユーザ管理機能要件</h2>
+      <p class="section-title">管理対象（自前テーブル）</p>
+      <ul>
+        <li>ユーザID / 表示名 / メール / 状態</li>
+        <li>ロール / 作成日時 / 更新日時</li>
+      </ul>
+      <p class="section-title">主要ユースケース</p>
+      <ul>
+        <li>ユーザ一覧表示（検索・絞り込み）</li>
+        <li>ユーザ新規登録 / 編集 / 無効化</li>
+        <li>ロール割当変更と履歴保存</li>
+      </ul>
+      <p class="subtext">パスワードは保持せず外部IdP認証を利用</p>
+      <div class="footer">要件案 v0.1</div>
+      <div class="page-no">ページ6 / 全15</div>
+    </section>
+    <!-- slide:6:end -->
+
+    <!-- slide:7:start -->
+    <section class="slide" data-slide="7" data-type="body">
+      <h2 class="body-title">5. 取引情報参照メニュー要件</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>画面</th>
+            <th>要件</th>
+            <th>外部API連携</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>取引一覧</td>
+            <td>条件検索、一覧表示、ページング</td>
+            <td>一覧取得APIをBFF経由で呼出</td>
+          </tr>
+          <tr>
+            <td>取引詳細</td>
+            <td>明細、ステータス、履歴を表示</td>
+            <td>詳細取得APIをBFF経由で呼出</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="emph">外部API失敗時は再試行導線を表示</p>
+      <div class="footer">要件案 v0.1</div>
+      <div class="page-no">ページ7 / 全15</div>
+    </section>
+    <!-- slide:7:end -->
+
+    <!-- slide:8:start -->
+    <section class="slide" data-slide="8" data-type="body">
+      <h2 class="body-title">6. 取引登録機能メニュー要件</h2>
+      <p class="section-title">取引入力画面</p>
+      <ul>
+        <li>必須項目チェックとフォーマット検証</li>
+        <li>確認ダイアログ後に登録APIを実行</li>
+        <li>成功時は受付番号と結果を表示</li>
+        <li>失敗時は入力保持+エラー理由を表示</li>
+      </ul>
+      <p class="section-title">外部API登録時の方針</p>
+      <ul>
+        <li>重複送信防止のリクエストID付与</li>
+        <li>タイムアウト時は状態照会導線を提供</li>
+      </ul>
+      <div class="footer">要件案 v0.1</div>
+      <div class="page-no">ページ8 / 全15</div>
+    </section>
+    <!-- slide:8:end -->
+
+    <!-- slide:9:start -->
+    <section class="slide" data-slide="9" data-type="body">
+      <h2 class="body-title">7. API連携・非機能要件</h2>
+      <p class="section-title">外部API連携</p>
+      <ul>
+        <li>Spring Bootで接続先を一元管理</li>
+        <li>接続タイムアウト、再試行回数を定義</li>
+        <li>外部エラーを業務エラーへ正規化</li>
+      </ul>
+      <p class="section-title">非機能</p>
+      <ul>
+        <li>可用性: 外部API障害時の縮退運転</li>
+        <li>性能: 一覧2秒以内（95パーセンタイル）</li>
+        <li>監査: 認証と取引操作ログを保管</li>
+        <li>セキュリティ: CSRF/XSS/SQLi対策を適用</li>
+      </ul>
+      <div class="footer">要件案 v0.1</div>
+      <div class="page-no">ページ9 / 全15</div>
+    </section>
+    <!-- slide:9:end -->
+
+    <!-- slide:10:start -->
+    <section class="slide" data-slide="10" data-type="body">
+      <h2 class="body-title">8. 各画面案（画面別）</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>画面名</th>
+            <th>主な表示項目</th>
+            <th>主な操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ログイン</td>
+            <td>ログイン状態、エラー内容</td>
+            <td>OAuthログイン開始、ログアウト</td>
+          </tr>
+          <tr>
+            <td>ユーザ管理</td>
+            <td>ユーザ一覧、ロール、状態</td>
+            <td>新規、編集、無効化、検索</td>
+          </tr>
+          <tr>
+            <td>取引一覧</td>
+            <td>取引ID、日付、金額、状態</td>
+            <td>検索、ページング、詳細遷移</td>
+          </tr>
+          <tr>
+            <td>取引詳細</td>
+            <td>ヘッダ情報、明細、履歴</td>
+            <td>一覧へ戻る、再読込</td>
+          </tr>
+          <tr>
+            <td>取引入力</td>
+            <td>取引先、金額、日付、備考</td>
+            <td>入力、確認、登録、クリア</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="footer">要件案 v0.2</div>
+      <div class="page-no">ページ10 / 全15</div>
+    </section>
+    <!-- slide:10:end -->
+
+    <!-- slide:11:start -->
+    <section class="slide" data-slide="11" data-type="body">
+      <h2 class="body-title">9. 画面遷移案</h2>
+      <p class="section-title">基本遷移</p>
+      <ul>
+        <li>ログイン → ホーム（メニュー）</li>
+        <li>ホーム → ユーザ管理</li>
+        <li>ホーム → 取引一覧 → 取引詳細</li>
+        <li>ホーム → 取引入力 → 登録結果</li>
+      </ul>
+      <p class="section-title">エラー時遷移</p>
+      <ul>
+        <li>認証エラー時はログインへ戻す</li>
+        <li>外部API障害時は同画面で再試行表示</li>
+        <li>登録失敗時は取引入力へ戻し再編集</li>
+      </ul>
+      <p class="subtext">遷移制御はVue Router + ガードで実装</p>
+      <div class="footer">要件案 v0.2</div>
+      <div class="page-no">ページ11 / 全15</div>
+    </section>
+    <!-- slide:11:end -->
+
+    <!-- slide:12:start -->
+    <section class="slide" data-slide="12" data-type="body">
+      <h2 class="body-title">10. 各画面レイアウト案（管理系）</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>画面</th>
+            <th>レイアウト構成</th>
+            <th>補足</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ログイン</td>
+            <td>中央カード + 案内文 + ボタン</td>
+            <td>未認証時の単画面構成</td>
+          </tr>
+          <tr>
+            <td>ホーム</td>
+            <td>上部ヘッダ + 左メニュー + 右本文</td>
+            <td>メニュー起点で各機能へ遷移</td>
+          </tr>
+          <tr>
+            <td>ユーザ管理</td>
+            <td>検索条件 + 一覧テーブル + 編集領域</td>
+            <td>一覧と編集を同一画面で完結</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="footer">要件案 v0.3</div>
+      <div class="page-no">ページ12 / 全15</div>
+    </section>
+    <!-- slide:12:end -->
+
+    <!-- slide:13:start -->
+    <section class="slide" data-slide="13" data-type="body">
+      <h2 class="body-title">11. 各画面レイアウト案（取引系）</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>画面</th>
+            <th>レイアウト構成</th>
+            <th>補足</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>取引一覧</td>
+            <td>検索フォーム + 一覧テーブル + ページャ</td>
+            <td>行クリックで詳細へ遷移</td>
+          </tr>
+          <tr>
+            <td>取引詳細</td>
+            <td>ヘッダ情報 + 明細テーブル + 履歴</td>
+            <td>戻るボタンで一覧へ戻る</td>
+          </tr>
+          <tr>
+            <td>取引入力</td>
+            <td>2カラム入力フォーム + 確認エリア</td>
+            <td>登録後は結果モーダル表示</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="footer">要件案 v0.3</div>
+      <div class="page-no">ページ13 / 全15</div>
+    </section>
+    <!-- slide:13:end -->
+
+    <!-- slide:14:start -->
+    <section class="slide" data-slide="14" data-type="body">
+      <h2 class="body-title">12. 画面イメージ（モック）</h2>
+      <div class="image-grid">
+        <div class="image-block">
+          <p class="image-note">図1: ログイン/ホーム画面</p>
+          <img
+            class="screen-image"
+            src="./assets/mock-login-home.png"
+            alt="ログインとホーム画面のモック">
+        </div>
+        <div class="image-block">
+          <p class="image-note">図2: 取引一覧/詳細画面</p>
+          <img
+            class="screen-image"
+            src="./assets/mock-transactions.png"
+            alt="取引一覧と取引詳細画面のモック">
+        </div>
+        <div class="image-block">
+          <p class="image-note">図3: 取引入力画面</p>
+          <img
+            class="screen-image"
+            src="./assets/mock-transaction-entry.png"
+            alt="取引入力画面のモック">
+        </div>
+      </div>
+      <p class="subtext">画像は実動作モック画面から取得。</p>
+      <div class="footer">要件案 v0.4</div>
+      <div class="page-no">ページ14 / 全15</div>
+    </section>
+    <!-- slide:14:end -->
+
+    <!-- slide:15:start -->
+    <section class="slide" data-slide="15" data-type="end">
+      <h2 class="end-title">終了</h2>
+      <p class="end-main">要件案の初版を整理しました。</p>
+      <p class="subtext">次工程: ワイヤー、API詳細、ERを確定</p>
+      <p class="subtext">入力資料: ユーザー指示（2026-07-04）</p>
+      <div class="footer">要件案 v0.4</div>
+      <div class="page-no">ページ15 / 全15</div>
+    </section>
+    <!-- slide:15:end -->
+  </main>
+</body>
+
+</html>

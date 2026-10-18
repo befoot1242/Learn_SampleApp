@@ -15,6 +15,7 @@
 | D-SEC | [認証・認可詳細設計](security-design.md) | セッション、ログイン、CSRF、画面/API認可 |
 | D-EXT | [外部API連携詳細設計](external-api-design.md) | BFFとMock External APIの契約、タイムアウト、再試行、エラー正規化、冪等性 |
 | D-FLOW | [主要処理フロー詳細設計](processing-flow-design.md) | 認証、ユーザ管理、取引参照・登録の処理順とシーケンス |
+| D-TX | [APIトランザクション制御詳細設計](transaction-control-design.md) | APIごとの境界、コミット/ロールバック契機、監査・外部APIとの独立性 |
 
 ## 3. 共通の読み方
 

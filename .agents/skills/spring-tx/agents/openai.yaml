@@ -1,0 +1,3 @@
+interface:
+  display_name: "Spring TX設計"
+  short_description: "API別のtransaction/rollback表を作成"

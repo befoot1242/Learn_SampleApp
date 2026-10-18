@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1520" height="1180" viewBox="0 0 1520 1180" role="img" aria-labelledby="title description">
+  <title id="title">取引管理システム 画面ワイヤーフレーム</title>
+  <desc id="description">現行Vue画面の構成をもとにした6画面のワイヤーフレーム。実画面キャプチャではない。</desc>
+  <defs>
+    <style>
+      text { font-family: Meiryo, sans-serif; fill: #25313d; }
+      .page { fill: #f4f6f8; stroke: #b8c2cc; stroke-width: 2; }
+      .top { fill: #14355c; }
+      .nav { fill: #e8edf2; }
+      .surface { fill: #fff; stroke: #c7d0d9; stroke-width: 1.5; }
+      .field { fill: #fff; stroke: #aeb9c4; stroke-width: 1.2; }
+      .rule { stroke: #c7d0d9; stroke-width: 1; }
+      .title { font-size: 22px; font-weight: 700; }
+      .label { font-size: 13px; }
+      .small { font-size: 11px; fill: #536170; }
+      .button { fill: #fff; stroke: #8998a7; stroke-width: 1; }
+      .primary { fill: #176b87; stroke: #176b87; }
+      .buttonText { font-size: 12px; }
+      .white { fill: #fff; }
+      .panelTitle { font-size: 18px; font-weight: 700; }
+      .tableHead { fill: #edf1f4; }
+    </style>
+  </defs>
+  <rect width="1520" height="1180" fill="#e9edf1" />
+  <text x="32" y="34" font-size="22" font-weight="700">取引管理システム | 画面ワイヤーフレーム</text>
+  <text x="32" y="57" class="small">現行Vue画面の構成に基づく図。実画面のキャプチャではありません。</text>
+
+  <!-- Login -->
+  <g transform="translate(30 78)">
+    <text x="0" y="0" class="panelTitle">S-01 ログイン</text>
+    <rect x="0" y="14" width="710" height="320" rx="4" class="page" />
+    <rect x="198" y="56" width="314" height="238" rx="4" class="surface" />
+    <text x="222" y="88" class="title">取引管理システム</text>
+    <text x="222" y="112" class="small">ユーザIDとパスワードを入力してログインしてください。</text>
+    <text x="222" y="145" class="label">ユーザID *</text>
+    <rect x="222" y="152" width="266" height="27" rx="2" class="field" />
+    <text x="222" y="201" class="label">パスワード *</text>
+    <rect x="222" y="208" width="266" height="27" rx="2" class="field" />
+    <rect x="222" y="247" width="266" height="30" rx="3" class="primary" />
+    <text x="340" y="267" class="buttonText white">ログイン</text>
+  </g>
+
+  <!-- Home -->
+  <g transform="translate(780 78)">
+    <text x="0" y="0" class="panelTitle">S-02 ホーム（ADMIN表示例）</text>
+    <rect x="0" y="14" width="710" height="320" rx="4" class="page" />
+    <rect x="0" y="14" width="710" height="34" class="top" />
+    <text x="14" y="37" class="label white">取引管理システム</text>
+    <text x="500" y="37" class="small white">管理者　|　ログアウト</text>
+    <rect x="0" y="48" width="132" height="286" class="nav" />
+    <text x="16" y="76" class="label">ホーム</text>
+    <text x="16" y="102" class="label">取引一覧</text>
+    <text x="16" y="128" class="label">取引登録</text>
+    <text x="16" y="154" class="label">ユーザ管理</text>
+    <text x="154" y="84" class="title">ホーム</text>
+    <text x="154" y="108" class="small">表示名 さん、ようこそ。メニューから機能を選択してください。</text>
+    <rect x="154" y="126" width="164" height="94" rx="3" class="surface" />
+    <text x="170" y="154" class="label">取引一覧</text>
+    <text x="170" y="176" class="small">取引情報を検索・参照</text>
+    <rect x="330" y="126" width="164" height="94" rx="3" class="surface" />
+    <text x="346" y="154" class="label">取引登録</text>
+    <text x="346" y="176" class="small">取引を入力・登録</text>
+    <rect x="506" y="126" width="164" height="94" rx="3" class="surface" />
+    <text x="522" y="154" class="label">ユーザ管理</text>
+    <text x="522" y="176" class="small">ユーザ・ロールを管理</text>
+  </g>
+
+  <!-- User Management -->
+  <g transform="translate(30 450)">
+    <text x="0" y="0" class="panelTitle">S-03 ユーザ管理（一覧表示例）</text>
+    <rect x="0" y="14" width="710" height="320" rx="4" class="page" />
+    <rect x="0" y="14" width="710" height="34" class="top" />
+    <text x="14" y="37" class="label white">取引管理システム</text>
+    <text x="500" y="37" class="small white">管理者　|　ログアウト</text>
+    <rect x="0" y="48" width="132" height="286" class="nav" />
+    <text x="16" y="76" class="label">ホーム</text><text x="16" y="102" class="label">取引一覧</text>
+    <text x="16" y="128" class="label">取引登録</text><text x="16" y="154" class="label">ユーザ管理</text>
+    <text x="154" y="78" class="title">ユーザ管理</text>
+    <rect x="154" y="89" width="536" height="56" rx="3" class="surface" />
+    <text x="164" y="106" class="small">キーワード</text><rect x="164" y="111" width="175" height="22" class="field" />
+    <text x="348" y="106" class="small">ロール</text><rect x="348" y="111" width="82" height="22" class="field" />
+    <text x="439" y="106" class="small">状態</text><rect x="439" y="111" width="82" height="22" class="field" />
+    <rect x="530" y="111" width="60" height="23" class="button primary" /><text x="545" y="127" class="buttonText white">検索</text>
+    <rect x="596" y="111" width="82" height="23" class="button" /><text x="606" y="127" class="buttonText">新規登録</text>
+    <rect x="154" y="157" width="536" height="150" class="surface" />
+    <rect x="154" y="157" width="536" height="28" class="tableHead" />
+    <text x="162" y="176" class="small">ユーザID</text><text x="240" y="176" class="small">表示名</text>
+    <text x="320" y="176" class="small">メール</text><text x="450" y="176" class="small">ロール</text>
+    <text x="500" y="176" class="small">状態</text><text x="552" y="176" class="small">操作</text>
+    <path d="M154 185h536 M154 215h536 M154 245h536 M154 275h536" class="rule" />
+    <text x="162" y="204" class="small">user1</text><text x="240" y="204" class="small">一般ユーザ</text><text x="450" y="204" class="small">一般</text><text x="500" y="204" class="small">有効</text><text x="552" y="204" class="small">編集　無効化</text>
+    <text x="162" y="234" class="small">admin</text><text x="240" y="234" class="small">管理者</text><text x="450" y="234" class="small">管理者</text><text x="500" y="234" class="small">有効</text><text x="552" y="234" class="small">編集</text>
+  </g>
+
+  <!-- Transaction List -->
+  <g transform="translate(780 450)">
+    <text x="0" y="0" class="panelTitle">S-04 取引一覧</text>
+    <rect x="0" y="14" width="710" height="320" rx="4" class="page" />
+    <rect x="0" y="14" width="710" height="34" class="top" />
+    <text x="14" y="37" class="label white">取引管理システム</text><text x="500" y="37" class="small white">一般ユーザ　|　ログアウト</text>
+    <rect x="0" y="48" width="132" height="286" class="nav" />
+    <text x="16" y="76" class="label">ホーム</text><text x="16" y="102" class="label">取引一覧</text><text x="16" y="128" class="label">取引登録</text>
+    <text x="154" y="78" class="title">取引一覧</text>
+    <rect x="154" y="89" width="536" height="56" rx="3" class="surface" />
+    <text x="164" y="106" class="small">取引日 From</text><rect x="164" y="111" width="90" height="22" class="field" />
+    <text x="261" y="106" class="small">To</text><rect x="261" y="111" width="90" height="22" class="field" />
+    <text x="358" y="106" class="small">状態</text><rect x="358" y="111" width="90" height="22" class="field" />
+    <text x="455" y="106" class="small">取引先名</text><rect x="455" y="111" width="150" height="22" class="field" />
+    <rect x="614" y="111" width="64" height="23" class="button primary" /><text x="628" y="127" class="buttonText white">検索</text>
+    <rect x="154" y="157" width="536" height="132" class="surface" /><rect x="154" y="157" width="536" height="28" class="tableHead" />
+    <text x="162" y="176" class="small">取引ID</text><text x="252" y="176" class="small">取引日</text><text x="342" y="176" class="small">取引先</text><text x="470" y="176" class="small">金額(円)</text><text x="560" y="176" class="small">状態</text>
+    <path d="M154 185h536 M154 215h536 M154 245h536 M154 275h536" class="rule" />
+    <text x="162" y="204" class="small">TX-001</text><text x="252" y="204" class="small">2026-06-01</text><text x="342" y="204" class="small">取引先A</text><text x="470" y="204" class="small">120,000</text><text x="560" y="204" class="small">完了</text>
+    <text x="162" y="234" class="small">TX-002</text><text x="252" y="234" class="small">2026-06-02</text><text x="342" y="234" class="small">取引先B</text><text x="470" y="234" class="small">45,000</text><text x="560" y="234" class="small">処理中</text>
+    <text x="162" y="310" class="small">全件数</text><text x="550" y="310" class="small">前へ　1 / N ページ　次へ</text>
+  </g>
+
+  <!-- Entry -->
+  <g transform="translate(30 822)">
+    <text x="0" y="0" class="panelTitle">S-05 取引登録</text>
+    <rect x="0" y="14" width="710" height="320" rx="4" class="page" />
+    <rect x="0" y="14" width="710" height="34" class="top" />
+    <text x="14" y="37" class="label white">取引管理システム</text><text x="500" y="37" class="small white">一般ユーザ　|　ログアウト</text>
+    <rect x="0" y="48" width="132" height="286" class="nav" />
+    <text x="16" y="76" class="label">ホーム</text><text x="16" y="102" class="label">取引一覧</text><text x="16" y="128" class="label">取引登録</text>
+    <text x="154" y="78" class="title">取引登録</text>
+    <rect x="154" y="89" width="536" height="208" rx="3" class="surface" />
+    <text x="174" y="117" class="small">取引先 *</text><rect x="174" y="123" width="220" height="25" class="field" />
+    <text x="424" y="117" class="small">取引日 *</text><rect x="424" y="123" width="220" height="25" class="field" />
+    <text x="174" y="168" class="small">金額(円) *</text><rect x="174" y="174" width="220" height="25" class="field" />
+    <text x="424" y="168" class="small">備考</text><rect x="424" y="174" width="220" height="55" class="field" />
+    <rect x="530" y="250" width="65" height="27" class="button" /><text x="549" y="268" class="buttonText">クリア</text>
+    <rect x="603" y="250" width="65" height="27" class="button primary" /><text x="622" y="268" class="buttonText white">確認</text>
+    <text x="154" y="317" class="small">確認後、ダイアログで内容を確認して登録</text>
+  </g>
+
+  <!-- Detail -->
+  <g transform="translate(780 822)">
+    <text x="0" y="0" class="panelTitle">S-06 取引詳細</text>
+    <rect x="0" y="14" width="710" height="320" rx="4" class="page" />
+    <rect x="0" y="14" width="710" height="34" class="top" />
+    <text x="14" y="37" class="label white">取引管理システム</text><text x="500" y="37" class="small white">一般ユーザ　|　ログアウト</text>
+    <rect x="0" y="48" width="132" height="286" class="nav" />
+    <text x="16" y="76" class="label">ホーム</text><text x="16" y="102" class="label">取引一覧</text><text x="16" y="128" class="label">取引登録</text>
+    <text x="154" y="78" class="title">取引詳細</text>
+    <rect x="540" y="58" width="66" height="23" class="button" /><text x="551" y="74" class="buttonText">一覧へ戻る</text>
+    <rect x="612" y="58" width="66" height="23" class="button" /><text x="626" y="74" class="buttonText">再読込</text>
+    <rect x="154" y="89" width="536" height="72" class="surface" />
+    <text x="166" y="108" class="label">ヘッダ情報</text>
+    <text x="166" y="129" class="small">取引ID　TX-001</text><text x="300" y="129" class="small">取引日　2026-06-01</text><text x="440" y="129" class="small">取引先　取引先A</text><text x="575" y="129" class="small">状態　完了</text>
+    <rect x="154" y="171" width="536" height="62" class="surface" /><text x="166" y="190" class="label">明細</text>
+    <rect x="166" y="197" width="512" height="22" class="tableHead" /><text x="174" y="213" class="small">行</text><text x="225" y="213" class="small">品目</text><text x="420" y="213" class="small">数量</text><text x="490" y="213" class="small">単価</text><text x="585" y="213" class="small">金額</text>
+    <rect x="154" y="243" width="536" height="64" class="surface" /><text x="166" y="262" class="label">履歴</text>
+    <rect x="166" y="269" width="512" height="22" class="tableHead" /><text x="174" y="285" class="small">日時</text><text x="350" y="285" class="small">イベント</text><text x="500" y="285" class="small">操作者</text>
+  </g>
+</svg>

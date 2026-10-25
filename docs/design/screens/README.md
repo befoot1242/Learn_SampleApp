@@ -16,6 +16,7 @@ API契約・DBカラムの詳細は画面別資料に重複記載しない。[AP
 | S-04 | 取引一覧 | `/transactions` | USER、ADMIN | [取引一覧画面](transaction-list.md) |
 | S-05 | 取引登録 | `/transactions/entry` | USER、ADMIN | [取引登録画面](transaction-entry.md) |
 | S-06 | 取引詳細 | `/transactions/:id` | USER、ADMIN | [取引詳細画面](transaction-detail.md) |
+| S-07 | 入力フォーム | `/input-form` | USER、ADMIN | [入力フォーム](input-form.md) |
 
 ## 3. 共通レイアウト
 
@@ -24,7 +25,7 @@ API契約・DBカラムの詳細は画面別資料に重複記載しない。[AP
 | 領域 | 表示・動作 |
 |---|---|
 | ヘッダー | アプリ名「取引管理システム」、ログインユーザの表示名とロール、ログアウトボタン |
-| サイドメニュー | ホーム、取引一覧、取引登録を表示。ユーザ管理はADMINのみ表示 |
+| サイドメニュー | ホーム、取引一覧、取引登録、入力フォームを表示。ユーザ管理はADMINのみ表示 |
 | コンテンツ | 各画面の見出しと画面固有の内容 |
 | ログアウト | `POST /api/auth/logout` を呼び出し、ログイン画面へ遷移 |
 

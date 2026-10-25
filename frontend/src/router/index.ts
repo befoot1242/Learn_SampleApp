@@ -32,6 +32,11 @@ const router = createRouter({
       component: () => import('../views/TransactionEntryView.vue'),
     },
     {
+      path: '/input-form',
+      name: 'input-form',
+      component: () => import('../views/InputFormView.vue'),
+    },
+    {
       path: '/transactions/:id',
       name: 'transaction-detail',
       component: () => import('../views/TransactionDetailView.vue'),

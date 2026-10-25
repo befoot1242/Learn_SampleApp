@@ -18,6 +18,10 @@ const auth = useAuthStore()
         <h3>取引登録</h3>
         <p class="text-sub">新しい取引を入力し、外部システムへ登録します。</p>
       </router-link>
+      <router-link class="card menu-card" :to="{ name: 'input-form' }">
+        <h3>入力フォーム</h3>
+        <p class="text-sub">氏名・住所・日付・自由記入欄を入力します。</p>
+      </router-link>
       <router-link v-if="auth.isAdmin" class="card menu-card" :to="{ name: 'users' }">
         <h3>ユーザ管理</h3>
         <p class="text-sub">ユーザの登録・編集・無効化とロール管理を行います。</p>

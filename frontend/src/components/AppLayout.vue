@@ -29,6 +29,7 @@ async function onLogout() {
         <router-link :to="{ name: 'home' }">ホーム</router-link>
         <router-link :to="{ name: 'transactions' }">取引一覧</router-link>
         <router-link :to="{ name: 'transaction-entry' }">取引登録</router-link>
+        <router-link :to="{ name: 'input-form' }">入力フォーム</router-link>
         <router-link v-if="auth.isAdmin" :to="{ name: 'users' }">ユーザ管理</router-link>
       </nav>
       <main class="content">

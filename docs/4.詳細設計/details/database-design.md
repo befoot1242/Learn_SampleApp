@@ -8,7 +8,7 @@
 | 対象 | BackendがH2へ永続化するデータ |
 | DB | H2 file database `./data/appdb` |
 | スキーマ管理 | Hibernate `ddl-auto=update` |
-| 参照 | [API詳細設計](api-design.md)、[基本設計書](../basic-design.md) |
+| 参照 | [API詳細設計](api-design.md)、[基本設計書](../../3.基本設計/basic-design.md) |
 
 本書の型・制約はJPAエンティティの宣言に基づく。実際に生成されたDB DDLを直接取得して確認したものではない。インデックス、照合順序、物理カラム名の命名変換など、宣言のない事項は未定義／要確認とする。
 

@@ -8,9 +8,9 @@
 | 版 | 0.1（リバースエンジニアリング初版） |
 | 実装確認日 | 2026-10-18 |
 | 対象 | 本リポジトリの現行実装 |
-| 関連資料 | [要件案](../../vue-springboot-external-api-requirements.html) |
-| 画面別詳細設計 | [画面別詳細設計一覧](screens/README.md) |
-| 詳細設計 | [詳細設計書一覧](details/README.md) |
+| 関連資料 | [要件案](../2.要件資料/vue-springboot-external-api-requirements.html) |
+| 画面別詳細設計 | [画面別詳細設計一覧](../4.詳細設計/screens/README.md) |
+| 詳細設計 | [詳細設計書一覧](../4.詳細設計/README.md) |
 
 ### 1.1 記載区分
 
@@ -216,7 +216,7 @@ Mock External APIの取引データはインメモリであり、プロセス再
 | 非機能目標 | 一覧2秒以内（95パーセンタイル）等 | 性能試験・保証設定を確認できない | 未検証の目標として扱う |
 | 画面一覧 | 要件案の画面案 | ホーム画面を含む6ルートを実装 | 実装一覧を本書に記載 |
 
-画面ごとの要件案との対応・差分は[画面別詳細設計](screens/README.md)に記載する。API・DB・認証・外部API連携の詳細は[詳細設計書一覧](details/README.md)を参照する。
+画面ごとの要件案との対応・差分は[画面別詳細設計](../4.詳細設計/screens/README.md)に記載する。API・DB・認証・外部API連携の詳細は[詳細設計書一覧](../4.詳細設計/README.md)を参照する。
 
 ## 10. 画面イメージ
 
@@ -224,59 +224,59 @@ Mock External APIの取引データはインメモリであり、プロセス再
 
 <details>
 <summary>S-01 ログイン</summary>
-<img src="images/login.png" alt="ログイン画面" width="900">
+<img src="../9.その他資料/images/login.png" alt="ログイン画面" width="900">
 </details>
 
 <details>
 <summary>S-02 ホーム（ADMIN）</summary>
-<img src="images/home-admin.png" alt="ADMINのホーム画面" width="900">
+<img src="../9.その他資料/images/home-admin.png" alt="ADMINのホーム画面" width="900">
 </details>
 
 <details>
 <summary>S-02 ホーム（USER）</summary>
-<img src="images/home-user.png" alt="USERのホーム画面" width="900">
+<img src="../9.その他資料/images/home-user.png" alt="USERのホーム画面" width="900">
 </details>
 
 <details>
 <summary>S-03 ユーザ管理（一覧）</summary>
-<img src="images/user-management.png" alt="ユーザ管理一覧" width="1200">
+<img src="../9.その他資料/images/user-management.png" alt="ユーザ管理一覧" width="1200">
 </details>
 
 <details>
 <summary>S-03 ユーザ管理（編集）</summary>
-<img src="images/user-management-edit.png" alt="ユーザ編集とロール履歴" width="1200">
+<img src="../9.その他資料/images/user-management-edit.png" alt="ユーザ編集とロール履歴" width="1200">
 </details>
 
 <details>
 <summary>S-04 取引一覧</summary>
-<img src="images/transactions-list.png" alt="取引一覧" width="1200">
+<img src="../9.その他資料/images/transactions-list.png" alt="取引一覧" width="1200">
 </details>
 
 <details>
 <summary>S-05 取引登録（通常）</summary>
-<img src="images/transaction-entry.png" alt="取引登録フォーム" width="1200">
+<img src="../9.その他資料/images/transaction-entry.png" alt="取引登録フォーム" width="1200">
 </details>
 
 <details>
 <summary>S-05 取引登録（入力エラー）</summary>
-<img src="images/transaction-entry-validation.png" alt="取引登録の入力エラー" width="1200">
+<img src="../9.その他資料/images/transaction-entry-validation.png" alt="取引登録の入力エラー" width="1200">
 </details>
 
 <details>
 <summary>S-05 取引登録（確認）</summary>
-<img src="images/transaction-entry-confirm.png" alt="取引登録の確認ダイアログ" width="1200">
+<img src="../9.その他資料/images/transaction-entry-confirm.png" alt="取引登録の確認ダイアログ" width="1200">
 </details>
 
 <details>
 <summary>S-06 取引詳細</summary>
-<img src="images/transaction-detail.png" alt="取引詳細" width="1200">
+<img src="../9.その他資料/images/transaction-detail.png" alt="取引詳細" width="1200">
 </details>
 
-画面構成の概略図は[ワイヤーフレーム](images/screen-wireframes.svg)を参照。キャプチャ内のデータはローカル開発環境のデモデータであり、本番データではない。
+画面構成の概略図は[ワイヤーフレーム](../9.その他資料/images/screen-wireframes.svg)を参照。キャプチャ内のデータはローカル開発環境のデモデータであり、本番データではない。
 
 ## 11. 主な参照元
 
-- [要件案](../../vue-springboot-external-api-requirements.html)
+- [要件案](../2.要件資料/vue-springboot-external-api-requirements.html)
 - [画面ルート・認証ガード](../../frontend/src/router/index.ts)
 - [共通画面レイアウト](../../frontend/src/components/AppLayout.vue)
 - [バックエンド設定](../../backend/src/main/resources/application.properties)

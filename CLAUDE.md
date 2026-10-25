@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## プロジェクト概要
 
-[vue-springboot-external-api-requirements.html](vue-springboot-external-api-requirements.html) の要件案を実装した学習用サンプル(取引管理システム)。Gradleマルチプロジェクト + Vueフロントエンドの3モジュール構成。
+[要件案](docs/2.要件資料/vue-springboot-external-api-requirements.html) を実装した学習用サンプル(取引管理システム)。Gradleマルチプロジェクト + Vueフロントエンドの3モジュール構成。
 
 ```
 frontend (Vue3+TS, :5173) → /api → backend (Spring Boot BFF, :8080) → mock-external-api (:9090)

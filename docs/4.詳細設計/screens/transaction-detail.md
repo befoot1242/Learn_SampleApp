@@ -12,7 +12,7 @@
 | 共通枠 | `AppLayout` |
 | パラメータ | `id`: 取引ID |
 
-![取引詳細](../images/transaction-detail.png)
+![取引詳細](../../9.その他資料/images/transaction-detail.png)
 
 ## 2. 画面項目
 

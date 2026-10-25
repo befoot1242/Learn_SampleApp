@@ -6,7 +6,7 @@
 |---|---|
 | 文書ID | D-API |
 | 対象 | Backendの `/api/**` |
-| 基本設計 | [基本設計書](../basic-design.md) |
+| 基本設計 | [基本設計書](../../3.基本設計/basic-design.md) |
 | 画面設計 | [画面別詳細設計](../screens/README.md) |
 | 外部API | [外部API連携詳細設計](external-api-design.md) |
 

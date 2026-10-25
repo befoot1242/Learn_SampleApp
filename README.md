@@ -1,6 +1,6 @@
 # 取引管理システム(学習用サンプル)
 
-[vue-springboot-external-api-requirements.html](vue-springboot-external-api-requirements.html) の要件案を基に実装した、
+[要件案](docs/2.要件資料/vue-springboot-external-api-requirements.html) を基に実装した、
 Vue 3 + Spring Boot + 外部API連携のサンプルアプリケーションです。
 
 ## 構成

@@ -12,9 +12,8 @@
 | コンポーネント | `frontend/src/views/HomeView.vue` |
 | 共通枠 | `AppLayout` |
 
-![ADMINのホーム画面](../images/home-admin.png)
-
-![USERのホーム画面](../images/home-user.png)
+![ADMINのホーム画面](../../9.その他資料/images/home-admin.png)
+![USERのホーム画面](../../9.その他資料/images/home-user.png)
 
 ## 2. 画面項目
 

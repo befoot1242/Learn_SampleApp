@@ -18,6 +18,8 @@
 erDiagram
     APP_USER ||--o{ ROLE_HISTORY : "userIdで論理対応"
     APP_USER ||--o{ AUDIT_LOG : "usernameで操作記録"
+    APP_USER ||--o{ APPLICATION_REQUEST : "createdByで操作記録"
+    APPLICATION_REQUEST ||--o{ APPLICATION_REQUEST_LANGUAGE : "申請言語"
 
     APP_USER {
         BIGINT id PK
@@ -45,6 +47,19 @@ erDiagram
         VARCHAR action
         VARCHAR detail
         VARCHAR result
+    }
+    APPLICATION_REQUEST {
+        BIGINT id PK
+        VARCHAR application_type
+        VARCHAR name_kanji
+        VARCHAR employee_number
+        VARCHAR status
+        VARCHAR created_by
+        TIMESTAMP created_at
+    }
+    APPLICATION_REQUEST_LANGUAGE {
+        BIGINT application_id
+        VARCHAR language
     }
 ```
 
@@ -92,32 +107,48 @@ erDiagram
 
 現行実装で確認できるactionは `LOGIN`, `LOGOUT`, `USER_CREATE`, `USER_UPDATE`, `USER_DISABLE`, `TX_REGISTER`。resultは成功/失敗を表す文字列として保存される。
 
-## 6. 関連・更新規則
+## 6. `application_request`・`application_request_language`
+
+`application_request`は各種申請フォームの登録内容を保持する。申請種別、漢字・カナ・英字氏名、社員番号、連絡先、住所、日付・時刻、数値、選択値、件名・本文、同意状態を保存する。主な文字列項目の最大長はエンティティ宣言に従い、申請内容はVARCHAR(2000)、金額はDECIMAL(12,2)相当である。
+
+| 項目群 | 主なカラム | NULL | 備考 |
+|---|---|---|---|
+| 識別・状態 | `id`, `application_type`, `status`, `created_by`, `created_at` | 不可 | IDENTITY採番。状態初期値は`RECEIVED` |
+| 個人・連絡先 | `name_kanji`, `name_kana`, `name_alphabet`, `employee_number`, `email`, `phone_number`, `website_url` | URLは可 | 作成者は認証ユーザ名 |
+| 日付・住所 | `birth_date`, `desired_date`, `start_time`, `end_time`, `notification_at`, `period_start`, `period_end`, `postal_code`, `prefecture`, `address`, `building_name` | 通知日時・建物名は可 | JavaのLocalDate/LocalTime/LocalDateTimeを保存 |
+| 数値・選択 | `quantity`, `amount`, `percentage`, `rating`, `gender`, `contact_method`, `priority`, `theme_color` | 不可 | 金額はDECIMAL(12,2)相当 |
+| 記述・同意 | `attachment_file_name`, `subject`, `content`, `confidentiality`, `terms_agreed`, `marketing_opt_in` | 添付名は可 | 添付ファイル本体は保存しない |
+
+利用言語は`@ElementCollection`で`application_request_language`に1申請あたり1行ずつ保存する。`application_id`は申請を参照する結合列である。
+
+## 7. 関連・更新規則
 
 - ユーザ作成時、ユーザ行を保存し、ロール履歴（oldRole=null）と監査ログを記録する。
 - ユーザのロール変更時、新旧ロールの履歴を保存する。
 - ユーザ無効化は物理削除ではなくstatusをDISABLEDに更新する。
 - 監査ログは `REQUIRES_NEW` トランザクションで保存し、呼出元業務処理の成否から独立させる。
 - 取引データはこのDBに保存しない。Mock External APIのインメモリストアに保持される。
+- 各種申請の登録時、`application_request`と利用言語を保存し、`APPLICATION_CREATE`監査ログを記録する。
 
-## 7. 初期データ
+## 8. 初期データ
 
 Backend起動時、ユーザ件数が0の場合のみadmin（ADMIN）とuser1（USER）を作成する。初期パスワードはデモ用 `password123` で、保存前にBCryptでハッシュ化する。Seederはユーザ行のみ作成し、ロール履歴・監査ログは作成しない。
 
 Mock External APIは別プロセス内に35件の取引初期データを作成する。プロセス再起動時に初期化され、H2永続データとは独立する。
 
-## 8. 未定義／要確認
+## 9. 未定義／要確認
 
 - DBインデックス、テーブル物理名の変換結果、生成DDL
 - H2ファイルのバックアップ/リストアと保持期間
 - 監査ログ保持期間・アーカイブ・削除方針
 - 本番DBへの移行有無、スキーマ変更管理方式
 
-## 9. 参照元
+## 10. 参照元
 
 - [ユーザエンティティ](../../../backend/src/main/java/com/example/backend/user/AppUser.java)
 - [ロール履歴エンティティ](../../../backend/src/main/java/com/example/backend/user/RoleHistory.java)
 - [監査ログエンティティ](../../../backend/src/main/java/com/example/backend/audit/AuditLog.java)
+- [各種申請エンティティ](../../../backend/src/main/java/com/example/backend/application/ApplicationRequest.java)
 - [監査記録サービス](../../../backend/src/main/java/com/example/backend/audit/AuditService.java)
 - [デモユーザ投入](../../../backend/src/main/java/com/example/backend/config/DataSeeder.java)
 - [Backend設定](../../../backend/src/main/resources/application.properties)

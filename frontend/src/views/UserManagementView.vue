@@ -54,6 +54,54 @@ function handleError(e: unknown) {
   fieldErrors.value = apiError.fieldErrors ?? {}
 }
 
+function validateField(field: 'username' | 'displayName' | 'email' | 'password'): string | undefined {
+  const value = form[field]
+  if (!value.trim()) {
+    const labels = {
+      username: 'ユーザID',
+      displayName: '表示名',
+      email: 'メールアドレス',
+      password: '初期パスワード',
+    }
+    return `${labels[field]}を入力してください`
+  }
+  if (field === 'username' && mode.value === 'create' && !/^[a-zA-Z0-9_.-]+$/.test(value)) {
+    return 'ユーザIDは半角英数字と記号(_.-)のみ使用できます'
+  }
+  if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+    return 'メールアドレスの形式が正しくありません'
+  }
+  if (field === 'password' && mode.value === 'create' && (value.length < 8 || value.length > 72)) {
+    return '初期パスワードは8～72文字で入力してください'
+  }
+  return undefined
+}
+
+function validate(): boolean {
+  const errors: Record<string, string> = {}
+  const fields: Array<'username' | 'displayName' | 'email' | 'password'> = [
+    'username',
+    'displayName',
+    'email',
+    ...(mode.value === 'create' ? ['password'] as const : []),
+  ]
+  for (const field of fields) {
+    const message = validateField(field)
+    if (message) errors[field] = message
+  }
+  fieldErrors.value = errors
+  return Object.keys(errors).length === 0
+}
+
+function validateOnFocusOut(field: 'username' | 'displayName' | 'email' | 'password') {
+  const message = validateField(field)
+  if (message) {
+    fieldErrors.value[field] = message
+  } else {
+    delete fieldErrors.value[field]
+  }
+}
+
 async function search() {
   loading.value = true
   errorMessage.value = ''
@@ -106,7 +154,7 @@ async function startEdit(user: AppUser) {
 
 async function save() {
   errorMessage.value = ''
-  fieldErrors.value = {}
+  if (!validate()) return
   try {
     if (mode.value === 'create') {
       await createUser({
@@ -239,17 +287,23 @@ onMounted(search)
         <form @submit.prevent="save">
           <div class="field">
             <label class="required">ユーザID</label>
-            <input v-model="form.username" :disabled="mode === 'edit'" maxlength="50" required />
+            <input
+              v-model="form.username"
+              :disabled="mode === 'edit'"
+              maxlength="50"
+              required
+              @blur="validateOnFocusOut('username')"
+            />
             <p v-if="fieldErrors.username" class="field-error">{{ fieldErrors.username }}</p>
           </div>
           <div class="field">
             <label class="required">表示名</label>
-            <input v-model="form.displayName" maxlength="100" required />
+            <input v-model="form.displayName" maxlength="100" required @blur="validateOnFocusOut('displayName')" />
             <p v-if="fieldErrors.displayName" class="field-error">{{ fieldErrors.displayName }}</p>
           </div>
           <div class="field">
             <label class="required">メールアドレス</label>
-            <input v-model="form.email" type="email" maxlength="255" required />
+            <input v-model="form.email" type="email" maxlength="255" required @blur="validateOnFocusOut('email')" />
             <p v-if="fieldErrors.email" class="field-error">{{ fieldErrors.email }}</p>
           </div>
           <div class="field">
@@ -268,7 +322,14 @@ onMounted(search)
           </div>
           <div v-if="mode === 'create'" class="field">
             <label class="required">初期パスワード(8文字以上)</label>
-            <input v-model="form.password" type="password" minlength="8" maxlength="72" required />
+            <input
+              v-model="form.password"
+              type="password"
+              minlength="8"
+              maxlength="72"
+              required
+              @blur="validateOnFocusOut('password')"
+            />
             <p v-if="fieldErrors.password" class="field-error">{{ fieldErrors.password }}</p>
           </div>
           <div class="toolbar">

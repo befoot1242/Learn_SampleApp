@@ -51,7 +51,7 @@ flowchart LR
 
 | ロール | 利用可能な機能 |
 |---|---|
-| USER | ホーム、取引一覧・詳細、取引登録 |
+| USER | ホーム、取引一覧・詳細、取引登録、入力フォーム、各種申請 |
 | ADMIN | USERの機能に加え、ユーザ管理 |
 
 認可は画面メニュー、Vue Routerガード、Spring Security API認可の複数箇所で行う。APIの認可を最終的な制御とする。
@@ -68,6 +68,7 @@ flowchart LR
 | F-06 | 取引詳細 | 指定した取引の詳細を取得する | USER、ADMIN |
 | F-07 | 取引登録 | 入力内容を確認後、外部APIへ登録する。冪等性キーで重複登録を抑止する | USER、ADMIN |
 | F-08 | 監査記録 | 認証、ユーザ操作、取引登録の結果を記録する | システム |
+| F-09 | 各種申請登録 | 多様な形式の入力内容を検証し、H2へ保存する | USER、ADMIN |
 
 ### 3.1 画面一覧
 
@@ -79,6 +80,8 @@ flowchart LR
 | S-04 | 取引一覧 | `/transactions` | 必要 | USER以上 | 取引検索、一覧表示、ページ移動 |
 | S-05 | 取引登録 | `/transactions/entry` | 必要 | USER以上 | 取引入力、確認、登録 |
 | S-06 | 取引詳細 | `/transactions/:id` | 必要 | USER以上 | 取引詳細表示 |
+| S-07 | 入力フォーム | `/input-form` | 必要 | USER以上 | 保存しない入力検証サンプル |
+| S-08 | 各種申請フォーム | `/applications/entry` | 必要 | USER以上 | 多様な入力項目を確認後にH2へ登録 |
 
 共通レイアウトはログイン後の画面にヘッダー、ログアウト操作、左側メニュー、画面本文を表示する。ユーザ管理メニューはADMINにのみ表示する。
 
@@ -92,17 +95,20 @@ flowchart TD
     List[取引一覧]
     Entry[取引登録]
     Detail[取引詳細]
+    Application[各種申請]
 
     Login -->|認証成功| Home
     Home --> Users
     Home --> List
     Home --> Entry
+    Home --> Application
     List --> Detail
     Detail --> List
     Home -->|ログアウト| Login
     Users -->|ログアウト| Login
     List -->|ログアウト| Login
     Entry -->|ログアウト| Login
+    Application -->|ログアウト| Login
     Detail -->|ログアウト| Login
     Home -. 未認証 .-> Login
     Users -. ADMIN以外 .-> Home
@@ -124,6 +130,7 @@ flowchart TD
 | 取引一覧 | `GET /api/transactions` | 条件・ページ指定で外部APIから取得 | 認証必須 |
 | 取引詳細 | `GET /api/transactions/{id}` | 外部APIから詳細を取得 | 認証必須 |
 | 取引登録 | `POST /api/transactions` | 入力を検証し、外部APIへ登録 | 認証必須 |
+| 各種申請登録 | `POST /api/applications` | 入力を検証し、H2へ登録 | 認証必須 |
 | ユーザ検索 | `GET /api/users` | キーワード、ロール、状態で検索 | ADMIN |
 | ユーザ登録 | `POST /api/users` | ユーザを作成 | ADMIN |
 | ユーザ更新 | `PUT /api/users/{id}` | ユーザ情報を更新 | ADMIN |

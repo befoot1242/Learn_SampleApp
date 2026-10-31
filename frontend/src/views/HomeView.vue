@@ -22,6 +22,10 @@ const auth = useAuthStore()
         <h3>入力フォーム</h3>
         <p class="text-sub">氏名・住所・日付・自由記入欄を入力します。</p>
       </router-link>
+      <router-link class="card menu-card" :to="{ name: 'application-entry' }">
+        <h3>各種申請</h3>
+        <p class="text-sub">多様な入力項目を含む申請内容を登録します。</p>
+      </router-link>
       <router-link v-if="auth.isAdmin" class="card menu-card" :to="{ name: 'users' }">
         <h3>ユーザ管理</h3>
         <p class="text-sub">ユーザの登録・編集・無効化とロール管理を行います。</p>

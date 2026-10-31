@@ -114,7 +114,21 @@
 
 Bean Validationで拒否された要求は400 `VALIDATION_ERROR`。通信タイムアウトは外部連携設計のエラー応答となる。
 
-## 5. ユーザ管理API
+## 5. 各種申請API
+
+`POST /api/applications`。認証済みのUSERまたはADMINが実行でき、外部APIを経由せずH2へ保存する。成功時200で`id`、`status`（初期値`RECEIVED`）、`createdAt`を返す。成功時には`APPLICATION_CREATE`監査ログを記録する。
+
+| 項目群 | Request項目 | 主な制約 |
+|---|---|---|
+| 基本情報 | `applicationType`, `nameKanji`, `nameKana`, `nameAlphabet`, `employeeNumber`, `gender` | 必須。カナ、英字氏名、社員番号の文字種を検証 |
+| 連絡・住所 | `email`, `phoneNumber`, `websiteUrl`, `postalCode`, `prefecture`, `address`, `buildingName` | URL・建物名以外必須。メール、電話、URL、郵便番号形式を検証 |
+| 日時 | `birthDate`, `desiredDate`, `startTime`, `endTime`, `notificationAt`, `periodStart`, `periodEnd` | 通知希望日時以外必須。日付の過去/未来と開始・終了の前後関係を検証 |
+| 数値・選択 | `quantity`, `amount`, `percentage`, `rating`, `languages`, `contactMethod`, `priority`, `themeColor` | 数値範囲、言語1〜5件、テーマカラー形式を検証 |
+| 記述・同意 | `attachmentFileName`, `subject`, `content`, `confidentiality`, `termsAgreed`, `marketingOptIn` | 添付ファイル名と配信希望以外必須。件名200文字、内容2000文字以内、規約同意はtrue |
+
+Bean Validationの失敗は400 `VALIDATION_ERROR`とフィールドエラーを返す。時刻または利用期間の終了値が開始値より前の場合は409（`INVALID_TIME_RANGE`または`INVALID_PERIOD`）を返す。
+
+## 6. ユーザ管理API
 
 すべてADMIN認証を要求する。
 
@@ -150,9 +164,9 @@ Bean Validationで拒否された要求は400 `VALIDATION_ERROR`。通信タイ�
 
 `GET /api/users/{id}/role-history`。成功時200で `id`, `oldRole`, `newRole`, `changedBy`, `changedAt` の配列を返す。新規作成時の `oldRole` はnull。更新日時の降順。
 
-## 6. 参照元
+## 7. 参照元
 
-- Backend Controllers: `auth/AuthController`, `transaction/TransactionController`, `user/UserController`
-- DTO・処理: `user/UserDtos`, `user/UserService`
+- Backend Controllers: `auth/AuthController`, `transaction/TransactionController`, `application/ApplicationController`, `user/UserController`
+- DTO・処理: `application/ApplicationDtos`, `application/ApplicationService`, `user/UserDtos`, `user/UserService`
 - 認証・共通エラー: `config/SecurityConfig`, `common/GlobalExceptionHandler`
 - 外部エラー変換: [外部API連携詳細設計](external-api-design.md)

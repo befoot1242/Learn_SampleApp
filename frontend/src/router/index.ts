@@ -37,6 +37,11 @@ const router = createRouter({
       component: () => import('../views/InputFormView.vue'),
     },
     {
+      path: '/applications/entry',
+      name: 'application-entry',
+      component: () => import('../views/ApplicationEntryView.vue'),
+    },
+    {
       path: '/transactions/:id',
       name: 'transaction-detail',
       component: () => import('../views/TransactionDetailView.vue'),

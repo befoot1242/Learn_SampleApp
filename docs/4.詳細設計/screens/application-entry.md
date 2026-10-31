@@ -1,0 +1,87 @@
+# S-08 各種申請フォーム 詳細設計
+
+## 1. 画面概要
+
+| 項目 | 内容 |
+|---|---|
+| 画面ID | S-08 |
+| 画面名 | 各種申請フォーム |
+| URL | `/applications/entry` |
+| 認証・権限 | 認証必須、USER・ADMIN |
+| コンポーネント | `frontend/src/views/ApplicationEntryView.vue` |
+| 共通枠 | `AppLayout` |
+
+既存のS-07入力フォーム（保存しない入力検証サンプル）とは別に、多様な入力形式を持つ申請内容をH2へ保存する画面である。外部APIは呼び出さない。
+
+## 2. 画面項目・入力値
+
+| 項目 | UI | 必須 | 初期値 | 入力形式分類 | 入力値・制約 |
+|---|---|---|---|---|---|
+| 申請種別 | セレクト | 必須 | 未選択 | [C-18](input-character-types.md#2-分類一覧) | 備品利用、研修参加、休暇、その他 |
+| 社員番号 | テキスト入力 | 必須 | 空文字 | [C-11](input-character-types.md#2-分類一覧) | 半角英大文字・数字6〜12文字 |
+| 氏名（漢字） | テキスト入力 | 必須 | 空文字 | [C-00](input-character-types.md#2-分類一覧) | 100文字以内 |
+| 氏名（カナ） | テキスト入力 | 必須 | 空文字 | [C-09](input-character-types.md#2-分類一覧) | 100文字以内 |
+| 英字氏名 | テキスト入力 | 必須 | 空文字 | [C-10](input-character-types.md#2-分類一覧) | 100文字以内 |
+| 性別 | セレクト | 必須 | 未選択 | [C-18](input-character-types.md#2-分類一覧) | 女性、男性、回答しない・その他 |
+| メールアドレス | メール入力 | 必須 | 空文字 | [C-05](input-character-types.md#2-分類一覧) | 255文字以内 |
+| 電話番号 | 電話番号入力 | 必須 | 空文字 | [C-07](input-character-types.md#2-分類一覧) | 20文字以内 |
+| WebサイトURL | URL入力 | 任意 | 空文字 | [C-06](input-character-types.md#2-分類一覧) | 255文字以内 |
+| 郵便番号 | テキスト入力 | 必須 | 空文字 | [C-08](input-character-types.md#2-分類一覧) | 例: `123-4567`。ハイフンは任意 |
+| 都道府県 | セレクト | 必須 | 未選択 | [C-18](input-character-types.md#2-分類一覧) | 北海道、東京都、愛知県、大阪府、福岡県、その他 |
+| 住所 | テキスト入力 | 必須 | 空文字 | [C-00](input-character-types.md#2-分類一覧) | 200文字以内 |
+| 建物名・部屋番号 | テキスト入力 | 任意 | 空文字 | [C-00](input-character-types.md#2-分類一覧) | 200文字以内 |
+| 生年月日 | 日付入力 | 必須 | 空文字 | [C-12](input-character-types.md#2-分類一覧) | バックエンドで過去の日付を検証 |
+| 希望日 | 日付入力 | 必須 | 空文字 | [C-12](input-character-types.md#2-分類一覧) | バックエンドで当日以降を検証 |
+| 開始時刻 | 時刻入力 | 必須 | 空文字 | [C-13](input-character-types.md#2-分類一覧) | 終了時刻と前後関係を検証 |
+| 終了時刻 | 時刻入力 | 必須 | 空文字 | [C-13](input-character-types.md#2-分類一覧) | 開始時刻以降 |
+| 通知希望日時 | 日時入力 | 任意 | 空文字 | [C-14](input-character-types.md#2-分類一覧) | バックエンドで現在以降を検証 |
+| 利用開始日 | 日付入力 | 必須 | 空文字 | [C-12](input-character-types.md#2-分類一覧) | 利用終了日と前後関係を検証 |
+| 利用終了日 | 日付入力 | 必須 | 空文字 | [C-12](input-character-types.md#2-分類一覧) | 利用開始日以降 |
+| 数量 | 数値入力 | 必須 | 未入力 | [C-15](input-character-types.md#2-分類一覧) | 1〜9999の整数 |
+| 金額（円） | 数値入力 | 必須 | 未入力 | [C-16](input-character-types.md#2-分類一覧) | 0.01以上、入力欄の刻み幅は0.01 |
+| 割合（%） | 数値入力 | 必須 | 未入力 | [C-17](input-character-types.md#2-分類一覧) | 0〜100の整数 |
+| 評価 | セレクト | 必須 | 未選択 | [C-15](input-character-types.md#2-分類一覧) | 1〜5 |
+| 利用言語 | チェックボックス | 必須 | 未選択 | [C-19](input-character-types.md#2-分類一覧) | Java、TypeScript、Python、SQL、Otherから1〜5件 |
+| 連絡方法 | ラジオボタン | 必須 | 未選択 | [C-18](input-character-types.md#2-分類一覧) | メール、電話 |
+| 優先度 | レンジ入力 | 必須 | 3 | [C-15](input-character-types.md#2-分類一覧) | 1〜5の整数 |
+| テーマカラー | カラー入力 | 必須 | `#1e6fd9` | [C-20](input-character-types.md#2-分類一覧) | `#RRGGBB`形式 |
+| 添付ファイル | ファイル入力 | 任意 | 未選択 | [C-21](input-character-types.md#2-分類一覧) | ファイル名は255文字以内。ファイル本体は保存しない |
+| 件名 | テキスト入力 | 必須 | 空文字 | [C-00](input-character-types.md#2-分類一覧) | 200文字以内 |
+| 申請内容 | 複数行テキスト | 必須 | 空文字 | [C-00](input-character-types.md#2-分類一覧) | 2000文字以内。文字数を表示 |
+| 機密区分 | ラジオボタン | 必須 | 社内限定 | [C-18](input-character-types.md#2-分類一覧) | 公開、社内限定、機密 |
+| 利用規約への同意 | チェックボックス | 必須 | 未チェック | [C-22](input-character-types.md#2-分類一覧) | 同意が必要 |
+| メール配信希望 | チェックボックス | 任意 | 未チェック | [C-22](input-character-types.md#2-分類一覧) | チェックの有無を保存 |
+
+分類の許可文字範囲は[入力形式・文字種分類](input-character-types.md)を参照する。
+
+## 3. 操作・表示状態
+
+| 操作 | 処理 |
+|---|---|
+| 確認 | 必須・数値範囲・期間の前後関係をクライアントで検証し、問題なければ確認ダイアログを表示する |
+| 登録する | `POST /api/applications`を呼び出し、成功時に申請ID・状態・登録日時を表示する |
+| 登録失敗 | APIの共通エラーを表示する。フィールドエラーは該当項目の下に表示する |
+| クリア | 入力値、選択ファイル名、項目エラー、通信エラーを初期状態へ戻す |
+| 続けて登録 | 完了ダイアログを閉じて入力内容を初期化する |
+
+セッション切れの401を受け取った場合は、共通パターンに従いログイン画面へ遷移する。
+
+### 入力形式の検証
+
+テキスト、日付・時刻、数値、カラー、ファイル名の入力からフォーカスが外れた時点で、対象項目だけを検証する。C-05〜C-17、C-20〜C-21の形式または範囲にそぐわない場合、項目の下にバリデーションエラーを表示する。再度フォーカスを外した時に検証を通過すれば、対象項目のエラーを消去する。
+
+確認操作時は、フォーカスアウト済みかを問わず、必須項目、利用言語、利用規約同意、期間・時刻の前後関係を含む全項目を検証する。
+
+## 4. API・保存
+
+- 登録先は`POST /api/applications`であり、認証済みユーザだけが実行できる。
+- 登録データはH2の`application_request`および`application_request_language`に保存する。
+- 添付ファイルはアップロードせず、ブラウザで選択したファイル名だけを`attachmentFileName`へ保存する。
+- 成功時は`APPLICATION_CREATE`として監査ログを記録する。
+
+## 5. 参照元
+
+- [各種申請フォーム画面コンポーネント](../../../frontend/src/views/ApplicationEntryView.vue)
+- [申請APIコントローラ](../../../backend/src/main/java/com/example/backend/application/ApplicationController.java)
+- [API詳細設計](../details/api-design.md)
+- [DB詳細設計](../details/database-design.md)

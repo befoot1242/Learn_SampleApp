@@ -71,3 +71,46 @@ export interface RegisterResult {
   transactionId: string
   status: string
 }
+
+export interface ApplicationRequest {
+  applicationType: string
+  nameKanji: string
+  nameKana: string
+  nameAlphabet: string
+  employeeNumber: string
+  email: string
+  phoneNumber: string
+  websiteUrl: string
+  birthDate: string
+  desiredDate: string
+  startTime: string
+  endTime: string
+  notificationAt: string
+  periodStart: string
+  periodEnd: string
+  postalCode: string
+  prefecture: string
+  address: string
+  buildingName: string
+  quantity: number | null
+  amount: number | null
+  percentage: number | null
+  rating: number | null
+  gender: string
+  languages: string[]
+  contactMethod: string
+  priority: number | null
+  themeColor: string
+  attachmentFileName: string
+  subject: string
+  content: string
+  confidentiality: string
+  termsAgreed: boolean
+  marketingOptIn: boolean
+}
+
+export interface ApplicationResponse {
+  id: number
+  status: string
+  createdAt: string
+}

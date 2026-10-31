@@ -6,6 +6,8 @@
 
 API契約・DBカラムの詳細は画面別資料に重複記載しない。[API・DB・認証・外部連携の詳細設計](../details/README.md)を参照する。
 
+入力項目の文字種・入力形式は、[入力形式・文字種分類](input-character-types.md)の分類IDを使用して画面別設計書に記載する。
+
 ## 2. 画面一覧
 
 | ID | 画面 | パス | 権限 | 設計書 |
@@ -17,6 +19,9 @@ API契約・DBカラムの詳細は画面別資料に重複記載しない。[AP
 | S-05 | 取引登録 | `/transactions/entry` | USER、ADMIN | [取引登録画面](transaction-entry.md) |
 | S-06 | 取引詳細 | `/transactions/:id` | USER、ADMIN | [取引詳細画面](transaction-detail.md) |
 | S-07 | 入力フォーム | `/input-form` | USER、ADMIN | [入力フォーム](input-form.md) |
+| S-08 | 各種申請フォーム | `/applications/entry` | USER、ADMIN | [各種申請フォーム](application-entry.md) |
+
+共通資料: [入力形式・文字種分類](input-character-types.md)
 
 ## 3. 共通レイアウト
 
@@ -25,7 +30,7 @@ API契約・DBカラムの詳細は画面別資料に重複記載しない。[AP
 | 領域 | 表示・動作 |
 |---|---|
 | ヘッダー | アプリ名「取引管理システム」、ログインユーザの表示名とロール、ログアウトボタン |
-| サイドメニュー | ホーム、取引一覧、取引登録、入力フォームを表示。ユーザ管理はADMINのみ表示 |
+| サイドメニュー | ホーム、取引一覧、取引登録、入力フォーム、各種申請を表示。ユーザ管理はADMINのみ表示 |
 | コンテンツ | 各画面の見出しと画面固有の内容 |
 | ログアウト | `POST /api/auth/logout` を呼び出し、ログイン画面へ遷移 |
 

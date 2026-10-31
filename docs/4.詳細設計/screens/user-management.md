@@ -11,9 +11,8 @@
 | コンポーネント | `frontend/src/views/UserManagementView.vue` |
 | 共通枠 | `AppLayout` |
 
-![ユーザ管理一覧](../images/user-management.png)
-
-![ユーザ編集とロール履歴](../images/user-management-edit.png)
+![ユーザ管理一覧](../../9.その他資料/images/user-management.png)
+![ユーザ編集とロール履歴](../../9.その他資料/images/user-management-edit.png)
 
 ## 2. 検索条件
 

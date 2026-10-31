@@ -6,7 +6,7 @@
 |---|---|
 | 文書ID | D-TX |
 | 対象 | BackendのHTTP APIと、その処理から呼び出すDB/外部API |
-| 基本設計 | [基本設計書](../basic-design.md) |
+| 基本設計 | [基本設計書](../../3.基本設計/basic-design.md) |
 | API契約 | [API詳細設計](api-design.md) |
 | DB | [DB詳細設計](database-design.md) |
 | 認証・認可 | [認証・認可詳細設計](security-design.md) |

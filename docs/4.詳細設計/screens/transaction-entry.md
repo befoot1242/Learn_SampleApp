@@ -11,7 +11,7 @@
 | コンポーネント | `frontend/src/views/TransactionEntryView.vue` |
 | 共通枠 | `AppLayout` |
 
-![取引登録フォーム](../images/transaction-entry.png)
+![取引登録フォーム](../../9.その他資料/images/transaction-entry.png)
 
 ## 2. 入力項目
 
@@ -41,11 +41,11 @@
 
 ### 確認ダイアログ
 
-![登録内容の確認](../images/transaction-entry-confirm.png)
+![登録内容の確認](../../9.その他資料/images/transaction-entry-confirm.png)
 
 ### 入力エラー表示
 
-![取引登録の入力エラー](../images/transaction-entry-validation.png)
+![取引登録の入力エラー](../../9.その他資料/images/transaction-entry-validation.png)
 
 登録成功モーダルの専用キャプチャは未取得。表示項目は実装テンプレートに基づく。
 

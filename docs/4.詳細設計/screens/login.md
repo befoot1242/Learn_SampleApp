@@ -11,7 +11,7 @@
 | コンポーネント | `frontend/src/views/LoginView.vue` |
 | レイアウト | 独立表示。認証後画面の共通ヘッダー・サイドメニューは表示しない |
 
-![ログイン画面](../images/login.png)
+![ログイン画面](../../9.その他資料/images/login.png)
 
 ## 2. 画面項目
 

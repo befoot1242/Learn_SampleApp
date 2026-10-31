@@ -7,7 +7,7 @@
 | 文書ID | D-TX-MATRIX |
 | 対象 | Backendの全HTTP APIと、APIから呼び出されるDB/外部API |
 | 実装確認日 | 2026-10-19 |
-| 基本設計 | [基本設計書](../basic-design.md) |
+| 基本設計 | [基本設計書](../../3.基本設計/basic-design.md) |
 | API契約 | [API詳細設計](api-design.md) |
 | DB | [DB詳細設計](database-design.md) |
 | 認証・認可 | [認証・認可詳細設計](security-design.md) |

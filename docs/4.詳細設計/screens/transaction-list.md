@@ -11,7 +11,7 @@
 | コンポーネント | `frontend/src/views/TransactionListView.vue` |
 | 共通枠 | `AppLayout` |
 
-![取引一覧](../images/transactions-list.png)
+![取引一覧](../../9.その他資料/images/transactions-list.png)
 
 ## 2. 検索条件
 

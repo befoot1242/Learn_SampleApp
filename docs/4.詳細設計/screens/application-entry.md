@@ -22,12 +22,12 @@
 | 氏名（漢字） | テキスト入力 | 必須 | 空文字 | [C-00](input-character-types.md#2-分類一覧) | 100文字以内 |
 | 氏名（カナ） | テキスト入力 | 必須 | 空文字 | [C-09](input-character-types.md#2-分類一覧) | 100文字以内 |
 | 英字氏名 | テキスト入力 | 必須 | 空文字 | [C-10](input-character-types.md#2-分類一覧) | 100文字以内 |
-| 性別 | セレクト | 必須 | 未選択 | [C-18](input-character-types.md#2-分類一覧) | 女性、男性、回答しない・その他 |
+| 性別 | セレクト | 必須 | 未選択 | [C-18](input-character-types.md#2-分類一覧) | 女性（`FEMALE`）、男性（`MALE`）、回答しない（`NON_BINARY`） |
 | メールアドレス | メール入力 | 必須 | 空文字 | [C-05](input-character-types.md#2-分類一覧) | 255文字以内 |
 | 電話番号 | 電話番号入力 | 必須 | 空文字 | [C-07](input-character-types.md#2-分類一覧) | 20文字以内 |
 | WebサイトURL | URL入力 | 任意 | 空文字 | [C-06](input-character-types.md#2-分類一覧) | 255文字以内 |
 | 郵便番号 | テキスト入力 | 必須 | 空文字 | [C-08](input-character-types.md#2-分類一覧) | 例: `123-4567`。ハイフンは任意 |
-| 都道府県 | セレクト | 必須 | 未選択 | [C-18](input-character-types.md#2-分類一覧) | 北海道、東京都、愛知県、大阪府、福岡県、その他 |
+| 都道府県 | セレクト | 必須 | 未選択 | [C-18](input-character-types.md#2-分類一覧) | 日本の47都道府県 |
 | 住所 | テキスト入力 | 必須 | 空文字 | [C-00](input-character-types.md#2-分類一覧) | 200文字以内 |
 | 建物名・部屋番号 | テキスト入力 | 任意 | 空文字 | [C-00](input-character-types.md#2-分類一覧) | 200文字以内 |
 | 生年月日 | 日付入力 | 必須 | 空文字 | [C-12](input-character-types.md#2-分類一覧) | バックエンドで過去の日付を検証 |
@@ -42,13 +42,13 @@
 | 割合（%） | 数値入力 | 必須 | 未入力 | [C-17](input-character-types.md#2-分類一覧) | 0〜100の整数 |
 | 評価 | セレクト | 必須 | 未選択 | [C-15](input-character-types.md#2-分類一覧) | 1〜5 |
 | 利用言語 | チェックボックス | 必須 | 未選択 | [C-19](input-character-types.md#2-分類一覧) | Java、TypeScript、Python、SQL、Otherから1〜5件 |
-| 連絡方法 | ラジオボタン | 必須 | 未選択 | [C-18](input-character-types.md#2-分類一覧) | メール、電話 |
+| 連絡方法 | ラジオボタン | 必須 | 未選択 | [C-18](input-character-types.md#2-分類一覧) | メール（`EMAIL`）、電話（`PHONE`） |
 | 優先度 | レンジ入力 | 必須 | 3 | [C-15](input-character-types.md#2-分類一覧) | 1〜5の整数 |
 | テーマカラー | カラー入力 | 必須 | `#1e6fd9` | [C-20](input-character-types.md#2-分類一覧) | `#RRGGBB`形式 |
 | 添付ファイル | ファイル入力 | 任意 | 未選択 | [C-21](input-character-types.md#2-分類一覧) | ファイル名は255文字以内。ファイル本体は保存しない |
 | 件名 | テキスト入力 | 必須 | 空文字 | [C-00](input-character-types.md#2-分類一覧) | 200文字以内 |
 | 申請内容 | 複数行テキスト | 必須 | 空文字 | [C-00](input-character-types.md#2-分類一覧) | 2000文字以内。文字数を表示 |
-| 機密区分 | ラジオボタン | 必須 | 社内限定 | [C-18](input-character-types.md#2-分類一覧) | 公開、社内限定、機密 |
+| 機密区分 | ラジオボタン | 必須 | 社内限定 | [C-18](input-character-types.md#2-分類一覧) | 公開（`PUBLIC`）、社内限定（`INTERNAL`）、機密（`CONFIDENTIAL`） |
 | 利用規約への同意 | チェックボックス | 必須 | 未チェック | [C-22](input-character-types.md#2-分類一覧) | 同意が必要 |
 | メール配信希望 | チェックボックス | 任意 | 未チェック | [C-22](input-character-types.md#2-分類一覧) | チェックの有無を保存 |
 

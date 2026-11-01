@@ -77,7 +77,7 @@
 - 登録先は`POST /api/applications`であり、認証済みユーザだけが実行できる。
 - 登録データはH2の`application_request`および`application_request_language`に保存する。
 - 添付ファイルはアップロードせず、ブラウザで選択したファイル名だけを`attachmentFileName`へ保存する。
-- 成功時は`APPLICATION_CREATE`として監査ログを記録する。
+- 成功時は`APPLICATION_CREATE`として監査ログを記録する。入力検証または業務検証の失敗時は、入力値を含めず理由コードのみを失敗監査として記録する。
 
 ## 5. 参照元
 

@@ -51,7 +51,7 @@
 - `@Transactional` の既定伝播は`REQUIRED`。コード上の明示設定とSpringの既定規則を混ぜずに読む。
 - 例外でrollbackされるかは、HTTP statusではなく、例外型と例外がTX proxy境界を越えるかで判断する。
 - 表内のrollback対象はローカルDBの永続データに限る。外部API、HTTPセッション等の状態はローカルDB rollbackで戻らないため、別途説明する。
-- `AuditService.record()`は`REQUIRES_NEW`。監査TXのcommit/rollbackと、呼出元業務TXのcommit/rollbackを別々に見る。
+- ログイン、ログアウト、取引登録の監査は`AuditService.record()`が`REQUIRES_NEW`で即時に記録する。ユーザ操作と申請登録の成功監査は`AuditSuccessEvent`を業務TX内で発行し、業務commit後に`AuditSuccessEventListener`が`REQUIRES_NEW`で記録する。
 - `なし（読み取りのみ）`、`なし（書き込み前）`、`なし（ローカルDB更新なし）`は、それぞれ異なる理由でローカルDBのrollback対象がないことを表す。
 
 ## 3. APIごとのトランザクション一覧
@@ -72,14 +72,17 @@
 | `POST /api/users` | `UserService.create` 重複確認 | `REQUIRED` | `app_user SELECT` | なし | 重複なしで登録を続行 | rollback詳細表を参照 |
 | `POST /api/users` | `UserService.create` | `REQUIRED` | `app_user INSERT` | なし | 業務TXに参加 | rollback詳細表を参照 |
 | `POST /api/users` | `UserService.create` | `REQUIRED` | `role_history INSERT` | なし | 業務TXに参加 | rollback詳細表を参照 |
-| `POST /api/users` | `AuditService.record(USER_CREATE)` | `REQUIRES_NEW` | `audit_log INSERT` | なし | USER_CREATE監査TXをcommit | rollback詳細表を参照 |
+| `POST /api/users` | `AuditSuccessEvent(USER_CREATE)` | `REQUIRED` | なし | 成功監査イベントを発行 | 業務TX commit後に監査記録を開始 | rollback詳細表を参照 |
+| `POST /api/users` | `AuditSuccessEventListener.record(USER_CREATE)` | commit後 / `REQUIRES_NEW` | `audit_log INSERT` | なし | USER_CREATE監査TXをcommit | rollback詳細表を参照 |
 | `PUT /api/users/{id}` | `UserService.update` 対象取得 | `REQUIRED` | `app_user SELECT` | なし | 更新処理を続行 | rollback詳細表を参照 |
 | `PUT /api/users/{id}` | `UserService.update` ロール変更 | `REQUIRED` | `role_history INSERT` | なし | 業務TXに参加 | rollback詳細表を参照 |
 | `PUT /api/users/{id}` | `UserService.update` | `REQUIRED` | `app_user UPDATE` | なし | 業務TXに参加 | rollback詳細表を参照 |
-| `PUT /api/users/{id}` | `AuditService.record(USER_UPDATE)` | `REQUIRES_NEW` | `audit_log INSERT` | なし | USER_UPDATE監査TXをcommit | rollback詳細表を参照 |
+| `PUT /api/users/{id}` | `AuditSuccessEvent(USER_UPDATE)` | `REQUIRED` | なし | 成功監査イベントを発行 | 業務TX commit後に監査記録を開始 | rollback詳細表を参照 |
+| `PUT /api/users/{id}` | `AuditSuccessEventListener.record(USER_UPDATE)` | commit後 / `REQUIRES_NEW` | `audit_log INSERT` | なし | USER_UPDATE監査TXをcommit | rollback詳細表を参照 |
 | `POST /api/users/{id}/disable` | `UserService.disable` 対象取得 | `REQUIRED` | `app_user SELECT` | なし | 無効化処理を続行 | rollback詳細表を参照 |
 | `POST /api/users/{id}/disable` | `UserService.disable` | `REQUIRED` | `app_user.status UPDATE` | なし | 業務TXに参加 | rollback詳細表を参照 |
-| `POST /api/users/{id}/disable` | `AuditService.record(USER_DISABLE)` | `REQUIRES_NEW` | `audit_log INSERT` | なし | USER_DISABLE監査TXをcommit | rollback詳細表を参照 |
+| `POST /api/users/{id}/disable` | `AuditSuccessEvent(USER_DISABLE)` | `REQUIRED` | なし | 成功監査イベントを発行 | 業務TX commit後に監査記録を開始 | rollback詳細表を参照 |
+| `POST /api/users/{id}/disable` | `AuditSuccessEventListener.record(USER_DISABLE)` | commit後 / `REQUIRES_NEW` | `audit_log INSERT` | なし | USER_DISABLE監査TXをcommit | rollback詳細表を参照 |
 | `GET /api/users/{id}/role-history` | `UserService.roleHistories` | `readOnly=true` | `role_history SELECT` | なし | 履歴を返却し読取TXを終了 | rollback詳細表を参照 |
 | `GET /api/transactions` | `ExternalApiClient.getWithRetry` | アプリ明示TXなし | なし | `GET /external/transactions` | 外部一覧応答を返却 | rollback詳細表を参照 |
 | `GET /api/transactions/{id}` | `ExternalApiClient.getWithRetry` | アプリ明示TXなし | なし | `GET /external/transactions/{id}` | 外部詳細応答を返却 | rollback詳細表を参照 |
@@ -88,7 +91,8 @@
 | `POST /api/applications` | `ApplicationService.create` 時刻・期間の前後関係検証 | `REQUIRED` | なし | なし | 検証を通過して保存処理を続行 | rollback詳細表を参照 |
 | `POST /api/applications` | `ApplicationService.create` | `REQUIRED` | `application_request INSERT` | なし | 業務TXに参加 | rollback詳細表を参照 |
 | `POST /api/applications` | `ApplicationService.create` | `REQUIRED` | `application_request_language INSERT` | なし | 業務TXに参加 | rollback詳細表を参照 |
-| `POST /api/applications` | `AuditService.record(APPLICATION_CREATE)` | `REQUIRES_NEW` | `audit_log INSERT` | なし | APPLICATION_CREATE監査TXをcommit | rollback詳細表を参照 |
+| `POST /api/applications` | `AuditSuccessEvent(APPLICATION_CREATE)` | `REQUIRED` | なし | 成功監査イベントを発行 | 業務TX commit後に監査記録を開始 | rollback詳細表を参照 |
+| `POST /api/applications` | `AuditSuccessEventListener.record(APPLICATION_CREATE)` | commit後 / `REQUIRES_NEW` | `audit_log INSERT` | なし | APPLICATION_CREATE監査TXをcommit | rollback詳細表を参照 |
 
 同一の`REQUIRED`行は同じServiceトランザクションに参加する。Repositoryメソッド単体の既定境界はコード上の明示設定ではなく、[APIトランザクション制御詳細設計](transaction-control-design.md)のRepository規約を参照。
 
@@ -99,6 +103,7 @@
 | `GET /api/auth/me` | 認証済みユーザ検索でユーザ行がなく`orElseThrow()`が実行される | `NoSuchElementException` | アプリ明示TXなし | なし（DB更新なし） |
 | `GET /api/auth/me` | `findByUsername`のDB読み取りが失敗する | `DataAccessException` | アプリ明示TXなし | なし（DB更新なし） |
 | `POST /api/auth/login` | JSON要求の解析に失敗する | `HttpMessageNotReadableException` | Controller到達前 | なし（DB更新なし） |
+| `POST /api/auth/login` | `LoginRequest`のusername/passwordがnullまたは空文字となる | `MethodArgumentNotValidException` | Controller引数のBean Validation | なし（DB更新なし） |
 | `POST /api/auth/login` | 資格情報が一致せず認証例外がcatchされる | `AuthenticationException` | アプリ明示TXなし | なし（ユーザ行の更新なし） |
 | `POST /api/auth/login` | ユーザ状態がDISABLEDで認証例外がcatchされる | `DisabledException` | アプリ明示TXなし | なし（ユーザ行の更新なし） |
 | `POST /api/auth/login` | 認証用ユーザ検索がDB障害となる | `DataAccessException` | アプリ明示TXなし | なし（ユーザ行の更新なし） |
@@ -119,12 +124,7 @@
 | `POST /api/users` | username重複が検出される | `BusinessException`（DUPLICATE_USER） | UserServiceの`REQUIRED` TX | なし（保存前） |
 | `POST /api/users` | `app_user` INSERTが失敗する | `DataAccessException` | UserServiceの`REQUIRED` TX | なし（成功した先行書き込みなし） |
 | `POST /api/users` | `role_history` INSERTが失敗する | `DataAccessException` | UserServiceの`REQUIRED` TX | `app_user`へのINSERT |
-| `POST /api/users` | USER_CREATE監査`save`が失敗する | `DataAccessException` | AuditServiceの`REQUIRES_NEW` | なし（監査INSERT未完了） |
-| `POST /api/users` | USER_CREATE監査例外が業務TXへ伝播する | `DataAccessException` | UserServiceの`REQUIRED` TX | `app_user`へのINSERT |
-| `POST /api/users` | USER_CREATE監査例外が業務TXへ伝播する | `DataAccessException` | UserServiceの`REQUIRED` TX | `role_history`へのINSERT |
-| `POST /api/users` | USER_CREATE監査TX commitが失敗する | commit例外（具体型は実行時依存） | AuditServiceの`REQUIRES_NEW` | `audit_log`へのUSER_CREATE監査INSERT |
-| `POST /api/users` | 監査commit例外が業務TXへ伝播する | commit例外（具体型は実行時依存） | UserServiceの`REQUIRED` TX | `app_user`へのINSERT |
-| `POST /api/users` | 監査commit例外が業務TXへ伝播する | commit例外（具体型は実行時依存） | UserServiceの`REQUIRED` TX | `role_history`へのINSERT |
+| `POST /api/users` | USER_CREATE成功監査の保存またはcommitが失敗する | `DataAccessException`またはcommit例外 | commit後のAuditService `REQUIRES_NEW` | なし（業務TXはcommit済み、監査INSERTは未完了またはrollback） |
 | `POST /api/users` | UserService業務TXのcommitが失敗する | commit例外（具体型は実行時依存） | UserServiceの`REQUIRED` TX | `app_user`へのINSERT |
 | `POST /api/users` | UserService業務TXのcommitが失敗する | commit例外（具体型は実行時依存） | UserServiceの`REQUIRED` TX | `role_history`へのINSERT |
 | `PUT /api/users/{id}` | JSON要求の解析に失敗する | `HttpMessageNotReadableException` | Controller到達前 | なし（DB更新なし） |
@@ -135,22 +135,14 @@
 | `PUT /api/users/{id}` | ロール変更時の`role_history` INSERTが失敗する | `DataAccessException` | UserServiceの`REQUIRED` TX | なし（app_user更新前） |
 | `PUT /api/users/{id}` | `app_user` UPDATEのflushが失敗する | `DataAccessException` | UserServiceの`REQUIRED` TX | `app_user`の更新内容 |
 | `PUT /api/users/{id}` | `app_user` UPDATEのflushが失敗する（ロール変更時） | `DataAccessException` | UserServiceの`REQUIRED` TX | `role_history`へのINSERT |
-| `PUT /api/users/{id}` | USER_UPDATE監査`save`が失敗する | `DataAccessException` | AuditServiceの`REQUIRES_NEW` | なし（監査INSERT未完了） |
-| `PUT /api/users/{id}` | USER_UPDATE監査例外が業務TXへ伝播する | `DataAccessException` | UserServiceの`REQUIRED` TX | `app_user`の更新内容 |
-| `PUT /api/users/{id}` | USER_UPDATE監査例外が業務TXへ伝播する（ロール変更時） | `DataAccessException` | UserServiceの`REQUIRED` TX | `role_history`へのINSERT |
-| `PUT /api/users/{id}` | USER_UPDATE監査TX commitが失敗する | commit例外（具体型は実行時依存） | AuditServiceの`REQUIRES_NEW` | `audit_log`へのUSER_UPDATE監査INSERT |
-| `PUT /api/users/{id}` | 監査commit例外が業務TXへ伝播する | commit例外（具体型は実行時依存） | UserServiceの`REQUIRED` TX | `app_user`の更新内容 |
-| `PUT /api/users/{id}` | 監査commit例外が業務TXへ伝播する（ロール変更時） | commit例外（具体型は実行時依存） | UserServiceの`REQUIRED` TX | `role_history`へのINSERT |
+| `PUT /api/users/{id}` | USER_UPDATE成功監査の保存またはcommitが失敗する | `DataAccessException`またはcommit例外 | commit後のAuditService `REQUIRES_NEW` | なし（業務TXはcommit済み、監査INSERTは未完了またはrollback） |
 | `PUT /api/users/{id}` | UserService業務TXのcommitが失敗する | commit例外（具体型は実行時依存） | UserServiceの`REQUIRED` TX | `app_user`の更新内容 |
 | `PUT /api/users/{id}` | UserService業務TXのcommitが失敗する（ロール変更時） | commit例外（具体型は実行時依存） | UserServiceの`REQUIRED` TX | `role_history`へのINSERT |
 | `POST /api/users/{id}/disable` | 対象ユーザSELECTがDB障害となる | `DataAccessException` | UserServiceの`REQUIRED` TX | なし（更新前） |
 | `POST /api/users/{id}/disable` | 対象ユーザが見つからない | `BusinessException`（USER_NOT_FOUND） | UserServiceの`REQUIRED` TX | なし（更新前） |
 | `POST /api/users/{id}/disable` | 操作者本人を無効化しようとする | `BusinessException`（SELF_DISABLE） | UserServiceの`REQUIRED` TX | なし（更新前） |
 | `POST /api/users/{id}/disable` | `app_user.status` UPDATEのflushが失敗する | `DataAccessException` | UserServiceの`REQUIRED` TX | なし（成功した先行書き込みなし） |
-| `POST /api/users/{id}/disable` | USER_DISABLE監査`save`が失敗する | `DataAccessException` | AuditServiceの`REQUIRES_NEW` | なし（監査INSERT未完了） |
-| `POST /api/users/{id}/disable` | USER_DISABLE監査例外が業務TXへ伝播する | `DataAccessException` | UserServiceの`REQUIRED` TX | `app_user.status`の更新内容 |
-| `POST /api/users/{id}/disable` | USER_DISABLE監査TX commitが失敗する | commit例外（具体型は実行時依存） | AuditServiceの`REQUIRES_NEW` | `audit_log`へのUSER_DISABLE監査INSERT |
-| `POST /api/users/{id}/disable` | 監査commit例外が業務TXへ伝播する | commit例外（具体型は実行時依存） | UserServiceの`REQUIRED` TX | `app_user.status`の更新内容 |
+| `POST /api/users/{id}/disable` | USER_DISABLE成功監査の保存またはcommitが失敗する | `DataAccessException`またはcommit例外 | commit後のAuditService `REQUIRES_NEW` | なし（業務TXはcommit済み、監査INSERTは未完了またはrollback） |
 | `POST /api/users/{id}/disable` | UserService業務TXのcommitが失敗する | commit例外（具体型は実行時依存） | UserServiceの`REQUIRED` TX | `app_user.status`の更新内容 |
 | `GET /api/users/{id}/role-history` | `role_history` SELECTがDB障害となる | `DataAccessException` | UserService.roleHistoriesの`readOnly` TX | なし（読み取りのみ） |
 | `GET /api/users/{id}/role-history` | readOnly TX終了処理が失敗する | TX終了例外（具体型は実行時依存） | UserService.roleHistoriesの`readOnly` TX | なし（読み取りのみ） |
@@ -171,21 +163,20 @@
 | `POST /api/transactions` | 外部登録成功後の成功監査commitが失敗する | commit例外（具体型は実行時依存） | AuditServiceの`REQUIRES_NEW` | `audit_log`へのTX_REGISTER成功監査INSERT |
 | `POST /api/applications` | JSON要求の解析に失敗する | `HttpMessageNotReadableException` | Controller到達前 | なし（DB更新なし） |
 | `POST /api/applications` | `@Valid`入力検証に失敗する | `MethodArgumentNotValidException` | ApplicationService TX開始前 | なし（書き込み前） |
+| `POST /api/applications` | 入力検証失敗の監査保存 | `AuditService.record` | `REQUIRES_NEW` | `audit_log INSERT`（`VALIDATION_ERROR`のみ） |
 | `POST /api/applications` | 終了時刻が開始時刻より前 | `BusinessException`（INVALID_TIME_RANGE） | ApplicationServiceの`REQUIRED` TX | なし（保存前） |
 | `POST /api/applications` | 利用終了日が利用開始日より前 | `BusinessException`（INVALID_PERIOD） | ApplicationServiceの`REQUIRED` TX | なし（保存前） |
+| `POST /api/applications` | 業務検証失敗の監査保存 | `AuditService.record` | `REQUIRES_NEW` | `audit_log INSERT`（`INVALID_TIME_RANGE`または`INVALID_PERIOD`のみ） |
 | `POST /api/applications` | `application_request` INSERTが失敗する | `DataAccessException` | ApplicationServiceの`REQUIRED` TX | なし（成功した先行書き込みなし） |
 | `POST /api/applications` | `application_request_language` INSERTが失敗する | `DataAccessException` | ApplicationServiceの`REQUIRED` TX | `application_request`へのINSERT |
-| `POST /api/applications` | APPLICATION_CREATE監査`save`が失敗する | `DataAccessException` | AuditServiceの`REQUIRES_NEW` | なし（監査INSERT未完了） |
-| `POST /api/applications` | APPLICATION_CREATE監査例外が業務TXへ伝播する | `DataAccessException` | ApplicationServiceの`REQUIRED` TX | `application_request`へのINSERT |
-| `POST /api/applications` | APPLICATION_CREATE監査TX commitが失敗する | commit例外（具体型は実行時依存） | AuditServiceの`REQUIRES_NEW` | `audit_log`へのAPPLICATION_CREATE監査INSERT |
-| `POST /api/applications` | 監査commit例外が業務TXへ伝播する | commit例外（具体型は実行時依存） | ApplicationServiceの`REQUIRED` TX | `application_request`へのINSERT |
+| `POST /api/applications` | APPLICATION_CREATE成功監査の保存またはcommitが失敗する | `DataAccessException`またはcommit例外 | commit後のAuditService `REQUIRES_NEW` | なし（業務TXはcommit済み、監査INSERTは未完了またはrollback） |
 | `POST /api/applications` | ApplicationService業務TXのcommitが失敗する | commit例外（具体型は実行時依存） | ApplicationServiceの`REQUIRED` TX | `application_request`へのINSERT |
 | `POST /api/applications` | ApplicationService業務TXのcommitが失敗する | commit例外（具体型は実行時依存） | ApplicationServiceの`REQUIRED` TX | `application_request_language`へのINSERT |
 
 ### 共通のTX開始前/後の失敗
 
 - Spring Securityの認証/認可/CSRFフィルターが拒否する場合、Controller/Serviceの業務TXは開始しない。rollback対象はない。
-- JSON要求の解析、Controller引数変換、Bean Validationで拒否する場合も、Serviceの業務TX開始前でありrollback対象はない。LoginRequestには `@Valid` がないため、そのDTOの `@NotBlank` 検証はControllerで実行されない。
+- JSON要求の解析、Controller引数変換、Bean Validationで拒否する場合も、Serviceの業務TX開始前でありrollback対象はない。LoginRequestは `@Valid` によりDTOの `@NotBlank` を検証する。
 - Service TXのcommit後に応答生成/送信が失敗しても、完了済みTXはrollbackされない。認証成功後のセッション変更やログアウト時のセッション無効化もDB rollbackの対象外。
 - POST `/api/transactions` のタイムアウトでは外部側の登録結果が不明な場合がある。外部状態はローカルrollbackされず、同じ `requestId` の再送で重複登録を抑止する。
-- POST `/api/applications` は `ApplicationService.create()` の業務TXで申請と利用言語を保存し、成功監査のみを `REQUIRES_NEW` で記録する。入力検証・時刻/期間検証の失敗では失敗監査を記録しない。利用言語行のINSERT発行時点はJPAのflushタイミングに依存し、実行時には未確認。
+- POST `/api/applications` は `ApplicationService.create()` の業務TXで申請と利用言語を保存し、成功監査イベントを発行する。業務commit後にイベントリスナーが `REQUIRES_NEW` で監査を記録する。入力検証・時刻/期間検証の失敗では失敗監査を記録しない。利用言語行のINSERT発行時点はJPAのflushタイミングに依存し、実行時には未確認。

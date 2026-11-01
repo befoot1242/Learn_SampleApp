@@ -1,20 +1,21 @@
 package com.example.backend.application;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.backend.audit.AuditService;
+import com.example.backend.audit.AuditSuccessEvent;
 import com.example.backend.common.BusinessException;
 
 @Service
 public class ApplicationService {
 
 	private final ApplicationRequestRepository repository;
-	private final AuditService auditService;
+	private final ApplicationEventPublisher eventPublisher;
 
-	public ApplicationService(ApplicationRequestRepository repository, AuditService auditService) {
+	public ApplicationService(ApplicationRequestRepository repository, ApplicationEventPublisher eventPublisher) {
 		this.repository = repository;
-		this.auditService = auditService;
+		this.eventPublisher = eventPublisher;
 	}
 
 	@Transactional
@@ -64,7 +65,7 @@ public class ApplicationService {
 		application.setCreatedBy(operator);
 
 		ApplicationRequest saved = repository.save(application);
-		auditService.record(operator, "APPLICATION_CREATE", "申請登録: id=" + saved.getId(), "SUCCESS");
+		eventPublisher.publishEvent(new AuditSuccessEvent(operator, "APPLICATION_CREATE", "申請登録: id=" + saved.getId()));
 		return saved;
 	}
 

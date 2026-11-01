@@ -44,7 +44,7 @@
 | 認証失敗 | 401。`LOGIN_FAILED` または `USER_DISABLED` と `message` |
 | 副作用 | セッションID再生成、SecurityContext保存、監査ログ記録 |
 
-`username`、`password` はDTO上NotBlank指定。ただしControllerの引数に `@Valid` がなく、現行実装ではこの検証は実行されない（実装課題。[トレーサビリティ §7](../../9.その他資料/要件設計実装トレーサビリティ.md) の I-01）。
+`username`、`password` はDTO上NotBlank指定であり、空文字またはnullの場合はBean Validationにより400 `VALIDATION_ERROR` と `fieldErrors` を返す。
 
 ### 3.2 現在の認証状態
 
@@ -116,7 +116,7 @@ Bean Validationで拒否された要求は400 `VALIDATION_ERROR`。通信タイ�
 
 ## 5. 各種申請API
 
-`POST /api/applications`。認証済みのUSERまたはADMINが実行でき、外部APIを経由せずH2へ保存する。成功時200で`id`、`status`（初期値`RECEIVED`）、`createdAt`を返す。成功時には`APPLICATION_CREATE`監査ログを記録する。
+`POST /api/applications`。認証済みのUSERまたはADMINが実行でき、外部APIを経由せずH2へ保存する。成功時200で`id`、`status`（初期値`RECEIVED`）、`createdAt`を返す。成功時には`APPLICATION_CREATE`監査ログを記録する。入力検証（400）と業務検証（409）の失敗時も、入力値を含めず理由コードのみを`APPLICATION_CREATE`の失敗監査として記録する。
 
 | 項目群 | Request項目 | 主な制約 |
 |---|---|---|

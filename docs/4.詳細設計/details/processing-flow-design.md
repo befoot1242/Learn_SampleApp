@@ -57,7 +57,9 @@ sequenceDiagram
         BFF->>BFF: パスワードをBCrypt化
         BFF->>DB: app_user保存 (ACTIVE)
         BFF->>DB: role_history保存 (oldRole=null)
-        BFF->>Audit: USER_CREATE SUCCESS (REQUIRES_NEW)
+        BFF->>BFF: USER_CREATE成功監査イベントを発行
+        BFF->>DB: 業務TX commit
+        BFF->>Audit: USER_CREATE SUCCESSをREQUIRES_NEW記録
         BFF-->>Admin: 200 UserResponse
     else 重複あり
         BFF-->>Admin: 409 DUPLICATE_USER
@@ -71,7 +73,9 @@ sequenceDiagram
         Note over BFF,DB: 履歴は追加しない
     end
     BFF->>DB: app_user更新
-    BFF->>Audit: USER_UPDATE SUCCESS (REQUIRES_NEW)
+    BFF->>BFF: USER_UPDATE成功監査イベントを発行
+    BFF->>DB: 業務TX commit
+    BFF->>Audit: USER_UPDATE SUCCESSをREQUIRES_NEW記録
     BFF-->>Admin: 200 UserResponse
 ```
 
@@ -149,9 +153,12 @@ sequenceDiagram
 
     V->>C: POST /api/applications
     C->>C: @Valid検証（失敗は400）
+    Note over C,A: 400/409時は理由コードのみをFAILURE監査
     C->>S: create(request, operator)
     S->>S: 時刻・期間の前後関係検証（失敗は409）
     S->>DB: application_request / 利用言語を保存
+    S->>S: APPLICATION_CREATE成功監査イベントを発行
+    S->>DB: 業務TX commit
     S->>A: APPLICATION_CREATE SUCCESS（REQUIRES_NEW）
     S-->>C: ApplicationResponse
     C-->>V: 200
@@ -161,7 +168,7 @@ sequenceDiagram
 
 ## 7. 監査トランザクション
 
-`AuditService.record()` は `Propagation.REQUIRES_NEW` で監査行を保存する。このため呼出元の業務トランザクションとは独立する。記録できる失敗範囲は呼出し箇所に依存し、全例外を自動記録する仕組みではない。
+`AuditService.record()` は `Propagation.REQUIRES_NEW` で監査行を保存する。ユーザ操作と申請登録の成功監査は、業務TXで`AuditSuccessEvent`を発行し、commit後にこのメソッドで記録する。申請登録の入力検証（400）と業務検証（409）の失敗は、理由コードのみを即時に記録する。その他の監査は即時に記録する。記録できる失敗範囲は呼出し箇所に依存し、全例外を自動記録する仕組みではない。
 
 ## 8. 参照元
 

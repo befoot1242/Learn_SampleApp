@@ -24,6 +24,7 @@ import com.example.backend.user.AppUserRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
 @RestController
@@ -49,7 +50,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest,
+	public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			Authentication authentication = authenticationManager.authenticate(

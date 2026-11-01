@@ -105,7 +105,7 @@ erDiagram
 | `detail` | String | VARCHAR(500) | 可 | 操作詳細 |
 | `result` | String | VARCHAR(20) | 不可 | 結果文字列 |
 
-現行実装で確認できるactionは `LOGIN`, `LOGOUT`, `USER_CREATE`, `USER_UPDATE`, `USER_DISABLE`, `TX_REGISTER`, `APPLICATION_CREATE`（成功のみ記録）。resultは成功/失敗を表す文字列として保存される。
+現行実装で確認できるactionは `LOGIN`, `LOGOUT`, `USER_CREATE`, `USER_UPDATE`, `USER_DISABLE`, `TX_REGISTER`, `APPLICATION_CREATE`。`APPLICATION_CREATE`は成功に加え、入力検証または業務検証の失敗を理由コードのみで記録する。resultは成功/失敗を表す文字列として保存される。
 
 ## 6. `application_request`・`application_request_language`
 
@@ -126,7 +126,7 @@ erDiagram
 - ユーザ作成時、ユーザ行を保存し、ロール履歴（oldRole=null）と監査ログを記録する。
 - ユーザのロール変更時、新旧ロールの履歴を保存する。
 - ユーザ無効化は物理削除ではなくstatusをDISABLEDに更新する。
-- 監査ログは `REQUIRES_NEW` トランザクションで保存し、呼出元業務処理の成否から独立させる。
+- 監査ログは `REQUIRES_NEW` トランザクションで保存する。ユーザ操作と申請登録の成功監査は業務commit後に記録し、その他は呼出元の処理時点で記録する。
 - 取引データはこのDBに保存しない。Mock External APIのインメモリストアに保持される。
 - 各種申請の登録時、`application_request`と利用言語を保存し、`APPLICATION_CREATE`監査ログを記録する。
 

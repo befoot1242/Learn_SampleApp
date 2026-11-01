@@ -20,7 +20,7 @@ frontend (Vue3+TS, :5173) → /api → backend (Spring Boot BFF, :8080) → mock
 
 # 起動(3プロセス必要。それぞれ別ターミナルで)
 .\gradlew.bat :mock-external-api:bootRun   # 先に起動(:9090)
-.\gradlew.bat :backend:bootRun             # BFF(:8080)
+.\gradlew.bat :backend:bootRun --args='--spring.profiles.active=dev' # BFF(:8080、H2コンソールを有効化)
 cd frontend; npm run dev                   # SPA(:5173)
 
 # フロントエンド
@@ -38,6 +38,11 @@ npm run build     # vue-tsc型チェック + viteビルド(型エラー検出は
 - スターター名が旧世代と異なる: `spring-boot-starter-webmvc`(旧 web)、`spring-boot-h2console`、テスト用は `spring-boot-starter-webmvc-test` 等
 - **JSONはJackson 3**: パッケージは `tools.jackson.*`。`com.fasterxml.jackson` はクラスパスに存在しないためimportするとコンパイルエラーになる
 - Git Bashからcurlで日本語を含むJSONを `-d` 直書きするとCP932化けして400になる。UTF-8ファイルに書いて `--data-binary @file` で送ること
+
+## ドキュメント
+
+- ドキュメント構成の正本は `docs/1.前提資料/1.設計書のフォルダ構成.md` とする。`docs/` 配下の文書を追加・削除・移動・改名する場合は、同ファイルのフォルダ構成、各フォルダの役割、配置ルールを必ず同じ変更で更新する。
+- ドキュメントをレビューする場合は、内容の正確性に加え、`docs/1.前提資料/1.設計書のフォルダ構成.md` と実際の文書群・配置・リンクが一致することを確認する。
 
 ## アーキテクチャ
 

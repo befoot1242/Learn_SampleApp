@@ -3,11 +3,13 @@ package com.example.backend.config;
 import java.io.IOException;
 import java.util.function.Supplier;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,6 +23,8 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
+import org.springframework.security.web.csrf.InvalidCsrfTokenException;
+import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -35,25 +39,38 @@ import jakarta.servlet.http.HttpServletResponse;
 public class SecurityConfig {
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http,
+			@Value("${spring.h2.console.enabled:false}") boolean h2ConsoleEnabled) throws Exception {
 		http
 				.csrf(csrf -> csrf
 						.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-						.csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
-						.ignoringRequestMatchers("/h2-console/**"))
+						.csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()));
+		if (h2ConsoleEnabled) {
+			http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
+					.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+		}
+		http
 				.addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
-				.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
-				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/api/auth/login", "/api/auth/me").permitAll()
-						.requestMatchers("/h2-console/**").permitAll()
-						.requestMatchers("/api/users/**").hasRole("ADMIN")
-						.requestMatchers("/api/**").authenticated()
-						.anyRequest().denyAll())
+				.authorizeHttpRequests(auth -> {
+					auth.requestMatchers("/api/auth/login", "/api/auth/me").permitAll();
+					if (h2ConsoleEnabled) {
+						auth.requestMatchers("/h2-console/**").permitAll();
+					}
+					auth.requestMatchers("/api/users/**").hasRole("ADMIN")
+							.requestMatchers("/api/**").authenticated()
+							.anyRequest().denyAll();
+				})
 				.exceptionHandling(ex -> ex
 						.authenticationEntryPoint((request, response, authException) -> writeJsonError(
 								response, HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "認証が必要です"))
-						.accessDeniedHandler((request, response, accessDeniedException) -> writeJsonError(
-								response, HttpStatus.FORBIDDEN, "FORBIDDEN", "この操作を行う権限がありません")))
+						.accessDeniedHandler((request, response, accessDeniedException) -> {
+							if (isCsrfFailure(accessDeniedException)) {
+								writeJsonError(response, HttpStatus.FORBIDDEN, "CSRF_INVALID",
+										"CSRFトークンが無効です。画面を再読み込みして再試行してください");
+								return;
+							}
+							writeJsonError(response, HttpStatus.FORBIDDEN, "FORBIDDEN", "この操作を行う権限がありません");
+						}))
 				.logout(logout -> logout.disable())
 				.formLogin(form -> form.disable())
 				.httpBasic(basic -> basic.disable());
@@ -66,6 +83,10 @@ public class SecurityConfig {
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().write("{\"code\":\"" + code + "\",\"message\":\"" + message + "\"}");
+	}
+
+	private static boolean isCsrfFailure(AccessDeniedException exception) {
+		return exception instanceof InvalidCsrfTokenException || exception instanceof MissingCsrfTokenException;
 	}
 
 	@Bean

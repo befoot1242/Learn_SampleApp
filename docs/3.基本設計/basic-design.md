@@ -178,9 +178,9 @@ Mock External APIの取引データはインメモリであり、プロセス再
 - ログイン成功時にセッションIDを変更し、SecurityContextをHTTPセッションへ保存する。
 - セッションタイムアウトは30分。セッションCookieはHttpOnly、SameSite=Lax。
 - CSRF対策はCookieCsrfTokenRepositoryを使用する。CSRF CookieをJavaScriptから参照できる設定とし、SPA側HTTPクライアントがリクエストヘッダーへ転記する。
-- `/api/auth/login`、`/api/auth/me`、H2コンソール以外のAPIは認証を要求する。`/api/users/**` はADMINロールを要求する。
+- `/api/auth/login`、`/api/auth/me`以外のAPIは認証を要求する。`/api/users/**` はADMINロールを要求する。`dev`プロファイルでのみ有効なH2コンソールは例外として公開する。
 - 画面側のメニュー・ルートガードは操作性のための制御であり、サーバー側認可の代替ではない。
-- H2コンソールは開発環境用の設定として有効化されている。利用環境や公開範囲は未定義／要確認。
+- H2コンソールは既定で無効とし、`dev`プロファイルでのみ有効化する。`dev`プロファイル中は公開し、CSRF検証を除外して同一オリジンframeを許可する。本番相当環境では有効化しない。
 
 ## 7. 監査・ログ設計
 

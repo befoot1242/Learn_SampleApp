@@ -17,7 +17,7 @@ public class AuditService {
 		this.repository = repository;
 	}
 
-	/** 監査ログは業務トランザクションの成否に関わらず残すため独立トランザクションで記録する。 */
+	/** 監査ログを独立トランザクションで記録する。 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void record(String username, String action, String detail, String result) {
 		repository.save(AuditLog.of(username, action, detail, result));

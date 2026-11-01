@@ -71,7 +71,7 @@ Secure属性、TLS終端、本番Cookie属性、同時セッション制限は�
 - SPAは `XSRF-TOKEN` Cookieの値を `X-XSRF-TOKEN` ヘッダーへ転記する。
 - `SpaCsrfTokenRequestHandler` はレスポンス側をXORハンドラー、ヘッダー要求の検証を平文ハンドラーで処理する。
 - `CsrfCookieFilter` が要求内のCSRFトークンを評価し、Cookie書き出しを確実にする。
-- `/h2-console/**` はCSRF検証を除外する。H2 Consoleは同一オリジンframeを許可する設定。
+- `dev`プロファイルでH2コンソールを有効にした場合のみ、`/h2-console/**` はCSRF検証を除外し、H2 Consoleは同一オリジンframeを許可する。
 - その他の状態変更APIはCSRF保護対象。CSRF失敗時の個別JSON応答形式はアプリ側ハンドラーとして確認できないため、未定義／要確認。
 
 ## 5. 認可
@@ -80,7 +80,7 @@ Secure属性、TLS終端、本番Cookie属性、同時セッション制限は�
 |---|---|
 | `/api/auth/login` | 公開 |
 | `/api/auth/me` | 公開 |
-| `/h2-console/**` | 公開設定（開発用） |
+| `/h2-console/**` | `dev`プロファイルでのみ公開設定 |
 | `/api/users/**` | `ROLE_ADMIN` |
 | その他 `/api/**` | 認証済み |
 | その他のリクエスト | denyAll |
@@ -93,19 +93,20 @@ USERとADMINは取引APIを利用できる。ADMIN制御は画面メニュー、
 |---|---:|---|
 | 未認証 | 401 | `{ "code": "UNAUTHORIZED", "message": "認証が必要です" }` |
 | 権限不足 | 403 | `{ "code": "FORBIDDEN", "message": "この操作を行う権限がありません" }` |
+| CSRFトークン不正・欠落 | 403 | `{ "code": "CSRF_INVALID", "message": "CSRFトークンが無効です。画面を再読み込みして再試行してください" }` |
 
 この応答には `retryable` は付かない。
 
 ## 7. 監査記録
 
-`AuditService.record()` は `REQUIRES_NEW` で監査ログを保存する。ログインは成功・認証失敗・無効ユーザ試行、ログアウトは成功を記録する。ユーザ操作・取引登録・申請登録の記録対象は[DB詳細設計](database-design.md)を参照。監査保存時はDB行に加え、SLF4Jロガー `AUDIT` へ user・action・result・detail を出力する（実装確認済み。保管期間・マスキングは未定義／要確認）。
+`AuditService.record()` は `REQUIRES_NEW` で監査ログを保存する。ログインは成功・認証失敗・無効ユーザ試行、ログアウトは成功を記録する。ユーザ操作・申請登録の成功監査は業務commit後に記録し、取引登録は処理時点で記録する。記録対象は[DB詳細設計](database-design.md)を参照。監査保存時はDB行に加え、SLF4Jロガー `AUDIT` へ user・action・result・detail を出力する（実装確認済み。保管期間・マスキングは未定義／要確認）。
 
 ## 8. 未定義／要確認
 
 - パスワード変更・リセット・有効期限・ロックアウト
 - セッション失効の運用、最大同時セッション数
 - 本番環境のTLS、Secure Cookie、HSTS、CORS
-- H2 Consoleの本番利用可否
+- H2 Consoleは本番相当環境で無効化する。
 - CSRF失敗時のAPI応答内容
 
 ## 9. 参照元

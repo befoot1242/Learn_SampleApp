@@ -32,6 +32,16 @@ const router = createRouter({
       component: () => import('../views/TransactionEntryView.vue'),
     },
     {
+      path: '/prototype/transaction-date',
+      name: 'transaction-date-prototype',
+      component: () => import('../views/TransactionDatePrototypeView.vue'),
+    },
+    {
+      path: '/prototype/datepicker-libraries',
+      name: 'datepicker-library-prototype',
+      component: () => import('../views/DatepickerLibraryPrototypeView.vue'),
+    },
+    {
       path: '/input-form',
       name: 'input-form',
       component: () => import('../views/InputFormView.vue'),

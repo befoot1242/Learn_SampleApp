@@ -77,10 +77,22 @@
 | Vuetify v-date-picker | ×（値としては常に日付） | ×（値としては常に日付） | ○（`viewMode`をヘッダークリックで `month`/`months`/`year`に切替、ただし確定値は常に日付） | GitHub vuetifyjs/vuetify |
 | Quasar QDate | ×（値としては常に日付） | ×（値としては常に日付） | ○（`default-view`/ヘッダー操作で`Calendar`/`Months`/`Years`を切替、ただし確定値は常に日付） | v2.quasar.dev |
 
+## プロトタイプの確認URL
+
+プロトタイプは`prototype/datepicker-samples`ブランチにのみ存在し、本番の取引登録APIは呼び出さない。確認するにはbackendを起動してログイン後、フロントエンドを`cd frontend; npm run dev`で起動する。画面は認証必須であり、デモアカウントの`user1` / `password123`または`admin` / `password123`でログインする。
+
+| 確認対象 | URL |
+|---|---|
+| 段階選択型（年→月→日） | `http://localhost:5173/prototype/transaction-date?variant=A` |
+| テキスト入力主導型（書式から精度を自動判定） | `http://localhost:5173/prototype/transaction-date?variant=D` |
+| ライブラリ比較（初期表示: Element Plus） | `http://localhost:5173/prototype/datepicker-libraries?library=element-plus` |
+
+ライブラリ比較画面は、画面下部の切替バー、左右矢印キー、またはURLの`library`クエリで次の値を指定して切り替える: `element-plus`、`primevue`、`vuepic`、`datepicker-next`、`ant-design-vue`、`naive-ui`。取引日入力プロトタイプの他の比較案は`variant=B`および`variant=C`で確認できる。
+
 ## 注意点・限界
 
 - 本調査は各ライブラリの公式ドキュメントおよび公式GitHubリポジトリのソース/ドキュメントファイルのみを根拠にしている。実機での挙動確認（ブラウザでの実行）は行っていない。
 - 「年/月/日の精度を1コンポーネントで切替できるか」という問いには2つの意味があり得る：
   1. **確定する値の精度**（年だけ/月だけ/日だけの値をv-modelとして返すか）→ 今回調査した範囲ではランタイムに切替可能な公式UIは確認できなかった（propを固定するモデルが主流）。
   2. **表示ビューの精度**（年グリッド/月グリッド/日グリッドのどれを表示するか、ナビゲーションとして）→ Vuetify, Quasarで標準サポートを確認。
-- 本ドキュメントはアプリケーションコードを変更せず、調査結果のみを記録したものである。
+- 本ブランチでは、調査結果を比較する読み取り専用のプロトタイプ画面を追加している。採用するUIを決定した後は、プロトタイプを本番コードとして流用せず、要件・API契約を含めて正式実装する。

@@ -95,12 +95,14 @@ flowchart TD
     List[取引一覧]
     Entry[取引登録]
     Detail[取引詳細]
+    InputForm[入力フォーム]
     Application[各種申請]
 
     Login -->|認証成功| Home
     Home --> Users
     Home --> List
     Home --> Entry
+    Home --> InputForm
     Home --> Application
     List --> Detail
     Detail --> List
@@ -108,6 +110,7 @@ flowchart TD
     Users -->|ログアウト| Login
     List -->|ログアウト| Login
     Entry -->|ログアウト| Login
+    InputForm -->|ログアウト| Login
     Application -->|ログアウト| Login
     Detail -->|ログアウト| Login
     Home -. 未認証 .-> Login

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-// Prototype: three transaction-date precision UI variants, switchable via ?variant=A|B|C.
+// Prototype: four transaction-date precision UI variants, switchable via ?variant=A|B|C|D.
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppLayout from '../components/AppLayout.vue'
 
 type Precision = 'year' | 'month' | 'day'
 type CalendarStep = Precision
-type Variant = 'A' | 'B' | 'C'
+type Variant = 'A' | 'B' | 'C' | 'D'
 
 const route = useRoute()
 const router = useRouter()
@@ -17,18 +17,21 @@ const month = ref('11')
 const day = ref('01')
 const calendarOpen = ref(false)
 const calendarStep = ref<CalendarStep>('year')
+const calendarInput = ref<HTMLInputElement | null>(null)
+const calendarDate = ref('2026-11-01')
 const calendarYears = [2024, 2025, 2026, 2027, 2028]
 const monthLabels = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
 
 const variant = computed<Variant>(() => {
   const value = route.query.variant
-  return value === 'B' || value === 'C' ? value : 'A'
+  return value === 'B' || value === 'C' || value === 'D' ? value : 'A'
 })
 
 const labels: Record<Variant, string> = {
   A: '精度を先に選ぶ',
   B: '3つの選択肢を並べる',
   C: '入力欄を段階的に開く',
+  D: 'テキスト入力を主にする',
 }
 
 const preview = computed(() => {
@@ -100,7 +103,7 @@ function chooseDay(value: number) {
 }
 
 function moveVariant(step: number) {
-  const variants: Variant[] = ['A', 'B', 'C']
+  const variants: Variant[] = ['A', 'B', 'C', 'D']
   const next = variants[(variants.indexOf(variant.value) + step + variants.length) % variants.length]
   router.replace({ query: { ...route.query, variant: next } })
 }
@@ -112,6 +115,18 @@ function handleKeydown(event: KeyboardEvent) {
   if (event.key === 'ArrowRight') moveVariant(1)
 }
 
+function openNativeCalendar() {
+  if (!calendarInput.value) return
+  const input = calendarInput.value
+  const showPicker = (input as HTMLInputElement & { showPicker?: () => void }).showPicker
+  if (showPicker) {
+    showPicker.call(input)
+  } else {
+    input.focus()
+    input.click()
+  }
+}
+
 watch(precision, (value) => {
   if (value === 'year') {
     month.value = ''
@@ -119,6 +134,10 @@ watch(precision, (value) => {
   } else if (value === 'month') {
     day.value = ''
   }
+})
+
+watch(calendarDate, (value) => {
+  if (value) dateInput.value = value
 })
 
 onMounted(() => window.addEventListener('keydown', handleKeydown))
@@ -196,7 +215,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
       </div>
       <label class="native-date">
         <span>取引日</span>
-        <input v-if="precision === 'day'" v-model="year" type="date" disabled aria-label="年月日入力の表示例" />
+        <input v-if="precision === 'day'" v-model="dateInput" type="date" aria-label="年月日入力の表示例" />
         <div v-else class="date-fields">
           <label>年<input v-model="year" inputmode="numeric" maxlength="4" />年</label>
           <label v-if="precision === 'month'">月<input v-model="month" inputmode="numeric" maxlength="2" />月</label>
@@ -204,7 +223,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
       </label>
     </section>
 
-    <section v-else class="prototype variant-c">
+    <section v-else-if="variant === 'C'" class="prototype variant-c">
       <header>
         <p class="eyebrow">案C</p>
         <h2>年を起点に必要な項目を開く</h2>
@@ -216,6 +235,29 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
         <label v-if="precision !== 'year'">月<input v-model="month" inputmode="numeric" maxlength="2" placeholder="11" /></label>
         <label v-if="precision !== 'year'" class="checkbox"><input type="checkbox" :checked="precision === 'day'" @change="choosePrecision(precision === 'day' ? 'month' : 'day')" />日まで分かる</label>
         <label v-if="precision === 'day'">日<input v-model="day" inputmode="numeric" maxlength="2" placeholder="01" /></label>
+      </div>
+    </section>
+
+    <section v-else class="prototype variant-d">
+      <header>
+        <p class="eyebrow">案D</p>
+        <h2>テキスト入力を主にして、カレンダーで年月日を補完する</h2>
+        <p>精度を選ぶUIは表示せず、入力した書式から年・年月・年月日を自動判定します。カレンダーで日付を選ぶと年月日を補完します。</p>
+      </header>
+      <div class="single-date-field">
+        <label for="textFirstTransactionDate">取引日</label>
+        <div class="date-input-with-button">
+          <input
+            id="textFirstTransactionDate"
+            v-model="dateInput"
+            inputmode="numeric"
+            maxlength="10"
+            placeholder="2026 / 2026-11 / 2026-11-01"
+          />
+          <button type="button" aria-label="年月日をカレンダーから選ぶ" @click="openNativeCalendar">📅</button>
+          <input ref="calendarInput" v-model="calendarDate" class="native-calendar-input" type="date" tabindex="-1" aria-hidden="true" />
+        </div>
+        <p>入力例: <code>2026</code>、<code>2026-11</code>、<code>2026-11-01</code>。カレンダーを使う場合は年月日を入力します。</p>
       </div>
     </section>
 
@@ -247,6 +289,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
 .date-input-with-button { display: flex; }
 .date-input-with-button input { flex: 1; min-width: 0; padding: 0.65rem; border: 1px solid #64748b; border-radius: 6px 0 0 6px; font-size: 1rem; }
 .date-input-with-button button { padding: 0 0.9rem; border: 1px solid #64748b; border-left: 0; border-radius: 0 6px 6px 0; background: #e2e8f0; cursor: pointer; }
+.date-input-with-button .native-calendar-input { position: absolute; width: 1px; height: 1px; padding: 0; border: 0; opacity: 0; pointer-events: none; }
 .calendar-popover { position: absolute; z-index: 10; top: 5.2rem; left: 0; width: min(100%, 28rem); padding: 1rem; border: 1px solid #94a3b8; border-radius: 8px; background: #fff; box-shadow: 0 10px 24px rgb(15 23 42 / 20%); }
 .calendar-popover h3 { margin-top: 0; font-size: 1rem; }
 .calendar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; }

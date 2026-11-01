@@ -344,25 +344,35 @@ sequenceDiagram
     participant C as ApplicationController
     participant S as ApplicationService (@Transactional REQUIRED)
     participant DB as H2
+    participant E as AuditSuccessEventListener
     participant A as AuditService (REQUIRES_NEW)
 
     C->>C: @Validで要求を検証
+    alt 入力検証に失敗
+        C->>A: FAILURE監査を記録（理由コードのみ）
+        A->>DB: audit_log INSERT / commit
+        C-->>C: 400 VALIDATION_ERROR
+    else 入力検証を通過
     C->>S: create(request, operator)
     Note over S,DB: 業務TX開始
     alt 時刻または期間の前後関係が不正
         S-->>C: BusinessException (INVALID_TIME_RANGE / INVALID_PERIOD)
-        Note over S,DB: 保存前。失敗監査は記録しない
+        C->>A: FAILURE監査を記録（理由コードのみ）
+        A->>DB: audit_log INSERT / commit
+        C-->>C: 409 BusinessException
     else 検証通過
         S->>DB: application_request保存（利用言語を含む）
-        S->>A: APPLICATION_CREATE SUCCESS記録
-        Note over A,DB: 監査TXは業務TXから独立してcommit
-        A-->>S: 記録完了
+        S->>S: APPLICATION_CREATE成功監査イベントを発行
         S-->>C: ApplicationResponse
         Note over S,DB: 正常終了後に業務TX commit
+        S->>E: AFTER_COMMITでイベントを処理
+        E->>A: APPLICATION_CREATE SUCCESSを記録
+        A->>DB: audit_log INSERT / commit
+    end
     end
 ```
 
-`ApplicationService.create()` はユーザ管理と同じく、成功監査を業務メソッドの末尾で記録する。監査保存が失敗すれば業務TXもrollbackし、監査commit後に業務commitが失敗した場合は成功監査だけが残る可能性がある。入力検証・時刻/期間検証の失敗は監査対象外。
+`ApplicationService.create()` は業務TX内で成功監査イベントを発行し、`AFTER_COMMIT`の`AuditSuccessEventListener`が成功監査を記録する。業務TXがrollbackした場合、成功監査イベントは処理されない。commit後の成功監査保存が失敗しても、業務TXはすでにcommit済みのためrollbackしない。入力検証・時刻/期間検証の失敗は、理由コードのみを`REQUIRES_NEW`の失敗監査として記録する。
 
 ## 6. HTTP応答とrollbackの対応
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppLayout from '../components/AppLayout.vue'
 import { registerApplication } from '../api/applications'
@@ -56,6 +56,69 @@ const error = ref<ApiError | null>(null)
 const result = ref<ApplicationResponse | null>(null)
 const showConfirm = ref(false)
 const submitting = ref(false)
+
+const applicationTypeLabels: Record<string, string> = {
+  EQUIPMENT: '備品利用',
+  TRAINING: '研修参加',
+  LEAVE: '休暇',
+  OTHER: 'その他',
+}
+const genderLabels: Record<string, string> = {
+  FEMALE: '女性',
+  MALE: '男性',
+  NON_BINARY: '回答しない・その他',
+}
+const contactMethodLabels: Record<string, string> = { EMAIL: 'メール', PHONE: '電話' }
+const confidentialityLabels: Record<string, string> = {
+  PUBLIC: '公開',
+  INTERNAL: '社内限定',
+  CONFIDENTIAL: '機密',
+}
+
+function displayValue(value: string | number | null): string {
+  return value === '' || value === null ? '-' : String(value)
+}
+
+function formatAmount(value: number | null): string {
+  return value === null ? '-' : `${value.toLocaleString('ja-JP')} 円`
+}
+
+const confirmationItems = computed(() => [
+  { label: '申請種別', value: applicationTypeLabels[form.value.applicationType] },
+  { label: '社員番号', value: form.value.employeeNumber },
+  { label: '氏名（漢字）', value: form.value.nameKanji },
+  { label: '氏名（カナ）', value: form.value.nameKana },
+  { label: '英字氏名', value: form.value.nameAlphabet },
+  { label: '性別', value: genderLabels[form.value.gender] },
+  { label: 'メールアドレス', value: form.value.email },
+  { label: '電話番号', value: form.value.phoneNumber },
+  { label: 'WebサイトURL', value: displayValue(form.value.websiteUrl) },
+  { label: '郵便番号', value: form.value.postalCode },
+  { label: '都道府県', value: form.value.prefecture },
+  { label: '住所', value: form.value.address },
+  { label: '建物名・部屋番号', value: displayValue(form.value.buildingName) },
+  { label: '生年月日', value: form.value.birthDate },
+  { label: '希望日', value: form.value.desiredDate },
+  { label: '開始時刻', value: form.value.startTime },
+  { label: '終了時刻', value: form.value.endTime },
+  { label: '通知希望日時', value: displayValue(form.value.notificationAt) },
+  { label: '利用開始日', value: form.value.periodStart },
+  { label: '利用終了日', value: form.value.periodEnd },
+  { label: '数量', value: displayValue(form.value.quantity) },
+  { label: '金額', value: formatAmount(form.value.amount) },
+  { label: '割合', value: `${displayValue(form.value.percentage)}%` },
+  { label: '評価', value: displayValue(form.value.rating) },
+  { label: '利用言語', value: form.value.languages.join(', ') },
+  { label: '連絡方法', value: contactMethodLabels[form.value.contactMethod] },
+  { label: '優先度', value: displayValue(form.value.priority) },
+  { label: 'テーマカラー', value: form.value.themeColor },
+  { label: '添付ファイル', value: displayValue(form.value.attachmentFileName) },
+  { label: '件名', value: form.value.subject },
+  { label: '申請内容', value: form.value.content },
+  { label: '機密区分', value: confidentialityLabels[form.value.confidentiality] },
+  { label: '利用規約への同意', value: form.value.termsAgreed ? '同意する' : '同意しない' },
+  { label: 'メール配信希望', value: form.value.marketingOptIn ? '希望する' : '希望しない' },
+])
 
 const requiredTextFields: Array<[keyof ApplicationRequest, string]> = [
     ['applicationType', '申請種別を選択してください'],
@@ -416,7 +479,23 @@ function onFileChange(event: Event) {
     </div>
 
     <div v-if="showConfirm" class="modal-backdrop">
-      <div class="modal"><h3>申請内容の確認</h3><table class="data"><tbody><tr><th>申請種別</th><td>{{ form.applicationType }}</td></tr><tr><th>氏名</th><td>{{ form.nameKanji }}</td></tr><tr><th>件名</th><td>{{ form.subject }}</td></tr><tr><th>希望日</th><td>{{ form.desiredDate }}</td></tr><tr><th>金額</th><td>{{ form.amount?.toLocaleString('ja-JP') }} 円</td></tr></tbody></table><div class="modal-actions"><button :disabled="submitting" @click="showConfirm = false">戻る</button><button class="primary" :disabled="submitting" @click="submit">{{ submitting ? '登録中...' : '登録する' }}</button></div></div>
+      <div class="modal confirm-modal">
+        <h3>申請内容の確認</h3>
+        <table class="data">
+          <tbody>
+            <tr v-for="item in confirmationItems" :key="item.label">
+              <th>{{ item.label }}</th>
+              <td class="confirmation-value">{{ item.value }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="modal-actions">
+          <button :disabled="submitting" @click="showConfirm = false">戻る</button>
+          <button class="primary" :disabled="submitting" @click="submit">
+            {{ submitting ? '登録中...' : '登録する' }}
+          </button>
+        </div>
+      </div>
     </div>
 
     <div v-if="result" class="modal-backdrop">
@@ -438,5 +517,7 @@ legend { font-size: 13px; color: var(--color-text-sub); margin-bottom: 4px; }
 input[type='color'] { height: 38px; padding: 3px; }
 input[type='range'] { padding: 0; }
 input[type='file'] { padding: 5px; }
+.confirm-modal { max-height: calc(100vh - 48px); overflow-y: auto; }
+.confirmation-value { white-space: pre-wrap; word-break: break-word; }
 @media (max-width: 800px) { .form-grid { grid-template-columns: 1fr; } .wide { grid-column: auto; } }
 </style>

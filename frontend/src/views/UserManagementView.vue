@@ -25,6 +25,8 @@ const loading = ref(false)
 const message = ref('')
 const errorMessage = ref('')
 const fieldErrors = ref<Record<string, string>>({})
+const showCreateConfirm = ref(false)
+const creating = ref(false)
 
 // 編集領域: mode が 'create' | 'edit' | null
 const mode = ref<'create' | 'edit' | null>(null)
@@ -152,28 +154,46 @@ async function startEdit(user: AppUser) {
   }
 }
 
+function openCreateConfirm() {
+  errorMessage.value = ''
+  if (validate()) showCreateConfirm.value = true
+}
+
+async function create() {
+  creating.value = true
+  errorMessage.value = ''
+  try {
+    await createUser({
+      username: form.username,
+      displayName: form.displayName,
+      email: form.email,
+      role: form.role,
+      password: form.password,
+    })
+    message.value = `ユーザ「${form.username}」を登録しました`
+    showCreateConfirm.value = false
+    mode.value = null
+    selectedUser.value = null
+    await search()
+  } catch (e) {
+    handleError(e)
+    showCreateConfirm.value = false
+  } finally {
+    creating.value = false
+  }
+}
+
 async function save() {
   errorMessage.value = ''
-  if (!validate()) return
+  if (!validate() || mode.value !== 'edit' || !selectedUser.value) return
   try {
-    if (mode.value === 'create') {
-      await createUser({
-        username: form.username,
-        displayName: form.displayName,
-        email: form.email,
-        role: form.role,
-        password: form.password,
-      })
-      message.value = `ユーザ「${form.username}」を登録しました`
-    } else if (mode.value === 'edit' && selectedUser.value) {
-      await updateUser(selectedUser.value.id, {
-        displayName: form.displayName,
-        email: form.email,
-        role: form.role,
-        status: form.status,
-      })
-      message.value = `ユーザ「${form.username}」を更新しました`
-    }
+    await updateUser(selectedUser.value.id, {
+      displayName: form.displayName,
+      email: form.email,
+      role: form.role,
+      status: form.status,
+    })
+    message.value = `ユーザ「${form.username}」を更新しました`
     mode.value = null
     selectedUser.value = null
     await search()
@@ -201,6 +221,7 @@ async function onDisable(user: AppUser) {
 function cancelEdit() {
   mode.value = null
   selectedUser.value = null
+  showCreateConfirm.value = false
   fieldErrors.value = {}
 }
 
@@ -284,7 +305,7 @@ onMounted(search)
       <!-- 編集領域(一覧と同一画面) -->
       <div v-if="mode" class="card edit-area">
         <h3>{{ mode === 'create' ? 'ユーザ新規登録' : 'ユーザ編集' }}</h3>
-        <form @submit.prevent="save">
+        <form @submit.prevent="mode === 'create' ? openCreateConfirm() : save()">
           <div class="field">
             <label class="required">ユーザID</label>
             <input
@@ -360,6 +381,27 @@ onMounted(search)
             </tbody>
           </table>
         </template>
+      </div>
+    </div>
+
+    <div v-if="showCreateConfirm" class="modal-backdrop">
+      <div class="modal">
+        <h3>登録内容の確認</h3>
+        <table class="data">
+          <tbody>
+            <tr><th>ユーザID</th><td>{{ form.username }}</td></tr>
+            <tr><th>表示名</th><td>{{ form.displayName }}</td></tr>
+            <tr><th>メールアドレス</th><td>{{ form.email }}</td></tr>
+            <tr><th>ロール</th><td>{{ roleLabels[form.role] }}</td></tr>
+            <tr><th>初期パスワード</th><td>********</td></tr>
+          </tbody>
+        </table>
+        <div class="modal-actions">
+          <button :disabled="creating" @click="showCreateConfirm = false">戻る</button>
+          <button class="primary" :disabled="creating" @click="create">
+            {{ creating ? '登録中...' : '登録する' }}
+          </button>
+        </div>
       </div>
     </div>
   </AppLayout>

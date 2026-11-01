@@ -44,7 +44,7 @@
 | 認証失敗 | 401。`LOGIN_FAILED` または `USER_DISABLED` と `message` |
 | 副作用 | セッションID再生成、SecurityContext保存、監査ログ記録 |
 
-`username`、`password` はNotBlank検証対象。Bean Validationエラーは共通400形式となる。
+`username`、`password` はDTO上NotBlank指定。ただしControllerの引数に `@Valid` がなく、現行実装ではこの検証は実行されない（実装課題。[トレーサビリティ §7](../../9.その他資料/要件設計実装トレーサビリティ.md) の I-01）。
 
 ### 3.2 現在の認証状態
 
@@ -132,13 +132,13 @@ Bean Validationの失敗は400 `VALIDATION_ERROR`とフィールドエラーを�
 
 すべてADMIN認証を要求する。
 
-### 5.1 検索
+### 6.1 検索
 
 `GET /api/users?keyword=&role=&status=`。任意条件のAND絞り込み。keywordはユーザID・表示名・メールの大文字小文字を区別しない部分一致。応答はユーザ応答の配列で、ID昇順。
 
 ユーザ応答項目: `id`, `username`, `displayName`, `email`, `status`, `role`, `createdAt`, `updatedAt`。
 
-### 5.2 登録
+### 6.2 登録
 
 `POST /api/users`。Request:
 
@@ -152,15 +152,15 @@ Bean Validationの失敗は400 `VALIDATION_ERROR`とフィールドエラーを�
 
 成功時201ではなく200でユーザ応答を返す。状態はACTIVEで作成し、パスワード平文は応答しない。username重複は409 `DUPLICATE_USER`。
 
-### 5.3 更新
+### 6.3 更新
 
 `PUT /api/users/{id}`。Requestは `displayName`（必須・最大100）、`email`（必須・メール形式・最大255）、`role`（必須）、`status`（必須）。成功時200でユーザ応答を返す。ロールが変化した場合に履歴を追加する。本人をDISABLEDにする要求は409 `SELF_DISABLE`。
 
-### 5.4 無効化
+### 6.4 無効化
 
 `POST /api/users/{id}/disable`。Request Bodyなし。成功時200で更新後ユーザ応答。本人の無効化は409 `SELF_DISABLE`、対象不在は409 `USER_NOT_FOUND`。
 
-### 5.5 ロール変更履歴
+### 6.5 ロール変更履歴
 
 `GET /api/users/{id}/role-history`。成功時200で `id`, `oldRole`, `newRole`, `changedBy`, `changedAt` の配列を返す。新規作成時の `oldRole` はnull。更新日時の降順。
 

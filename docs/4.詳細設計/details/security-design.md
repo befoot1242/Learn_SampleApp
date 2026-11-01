@@ -98,7 +98,7 @@ USERとADMINは取引APIを利用できる。ADMIN制御は画面メニュー、
 
 ## 7. 監査記録
 
-`AuditService.record()` は `REQUIRES_NEW` で監査ログを保存する。ログインは成功・認証失敗・無効ユーザ試行、ログアウトは成功を記録する。ユーザ操作・取引登録の記録対象は[DB詳細設計](database-design.md)を参照。
+`AuditService.record()` は `REQUIRES_NEW` で監査ログを保存する。ログインは成功・認証失敗・無効ユーザ試行、ログアウトは成功を記録する。ユーザ操作・取引登録・申請登録の記録対象は[DB詳細設計](database-design.md)を参照。監査保存時はDB行に加え、SLF4Jロガー `AUDIT` へ user・action・result・detail を出力する（実装確認済み。保管期間・マスキングは未定義／要確認）。
 
 ## 8. 未定義／要確認
 

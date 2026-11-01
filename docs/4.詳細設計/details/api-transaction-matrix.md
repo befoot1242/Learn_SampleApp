@@ -85,6 +85,10 @@
 | `GET /api/transactions/{id}` | `ExternalApiClient.getWithRetry` | アプリ明示TXなし | なし | `GET /external/transactions/{id}` | 外部詳細応答を返却 | rollback詳細表を参照 |
 | `POST /api/transactions` | `ExternalApiClient.post` | アプリ明示TXなし | なし | `POST /external/transactions` | 外部取引登録結果を受け取る | rollback詳細表を参照 |
 | `POST /api/transactions` | `AuditService.record(TX_REGISTER)` | `REQUIRES_NEW` | `audit_log INSERT` | なし | TX_REGISTER監査TXをcommit | rollback詳細表を参照 |
+| `POST /api/applications` | `ApplicationService.create` 時刻・期間の前後関係検証 | `REQUIRED` | なし | なし | 検証を通過して保存処理を続行 | rollback詳細表を参照 |
+| `POST /api/applications` | `ApplicationService.create` | `REQUIRED` | `application_request INSERT` | なし | 業務TXに参加 | rollback詳細表を参照 |
+| `POST /api/applications` | `ApplicationService.create` | `REQUIRED` | `application_request_language INSERT` | なし | 業務TXに参加 | rollback詳細表を参照 |
+| `POST /api/applications` | `AuditService.record(APPLICATION_CREATE)` | `REQUIRES_NEW` | `audit_log INSERT` | なし | APPLICATION_CREATE監査TXをcommit | rollback詳細表を参照 |
 
 同一の`REQUIRED`行は同じServiceトランザクションに参加する。Repositoryメソッド単体の既定境界はコード上の明示設定ではなく、[APIトランザクション制御詳細設計](transaction-control-design.md)のRepository規約を参照。
 
@@ -165,6 +169,18 @@
 | `POST /api/transactions` | 取引失敗監査commitが失敗する | commit例外（具体型は実行時依存） | AuditServiceの`REQUIRES_NEW` | `audit_log`へのTX_REGISTER失敗監査INSERT |
 | `POST /api/transactions` | 外部登録成功後の成功監査`save`が失敗する | `DataAccessException` | AuditServiceの`REQUIRES_NEW` | なし（監査INSERT未完了） |
 | `POST /api/transactions` | 外部登録成功後の成功監査commitが失敗する | commit例外（具体型は実行時依存） | AuditServiceの`REQUIRES_NEW` | `audit_log`へのTX_REGISTER成功監査INSERT |
+| `POST /api/applications` | JSON要求の解析に失敗する | `HttpMessageNotReadableException` | Controller到達前 | なし（DB更新なし） |
+| `POST /api/applications` | `@Valid`入力検証に失敗する | `MethodArgumentNotValidException` | ApplicationService TX開始前 | なし（書き込み前） |
+| `POST /api/applications` | 終了時刻が開始時刻より前 | `BusinessException`（INVALID_TIME_RANGE） | ApplicationServiceの`REQUIRED` TX | なし（保存前） |
+| `POST /api/applications` | 利用終了日が利用開始日より前 | `BusinessException`（INVALID_PERIOD） | ApplicationServiceの`REQUIRED` TX | なし（保存前） |
+| `POST /api/applications` | `application_request` INSERTが失敗する | `DataAccessException` | ApplicationServiceの`REQUIRED` TX | なし（成功した先行書き込みなし） |
+| `POST /api/applications` | `application_request_language` INSERTが失敗する | `DataAccessException` | ApplicationServiceの`REQUIRED` TX | `application_request`へのINSERT |
+| `POST /api/applications` | APPLICATION_CREATE監査`save`が失敗する | `DataAccessException` | AuditServiceの`REQUIRES_NEW` | なし（監査INSERT未完了） |
+| `POST /api/applications` | APPLICATION_CREATE監査例外が業務TXへ伝播する | `DataAccessException` | ApplicationServiceの`REQUIRED` TX | `application_request`へのINSERT |
+| `POST /api/applications` | APPLICATION_CREATE監査TX commitが失敗する | commit例外（具体型は実行時依存） | AuditServiceの`REQUIRES_NEW` | `audit_log`へのAPPLICATION_CREATE監査INSERT |
+| `POST /api/applications` | 監査commit例外が業務TXへ伝播する | commit例外（具体型は実行時依存） | ApplicationServiceの`REQUIRED` TX | `application_request`へのINSERT |
+| `POST /api/applications` | ApplicationService業務TXのcommitが失敗する | commit例外（具体型は実行時依存） | ApplicationServiceの`REQUIRED` TX | `application_request`へのINSERT |
+| `POST /api/applications` | ApplicationService業務TXのcommitが失敗する | commit例外（具体型は実行時依存） | ApplicationServiceの`REQUIRED` TX | `application_request_language`へのINSERT |
 
 ### 共通のTX開始前/後の失敗
 
@@ -172,4 +188,4 @@
 - JSON要求の解析、Controller引数変換、Bean Validationで拒否する場合も、Serviceの業務TX開始前でありrollback対象はない。LoginRequestには `@Valid` がないため、そのDTOの `@NotBlank` 検証はControllerで実行されない。
 - Service TXのcommit後に応答生成/送信が失敗しても、完了済みTXはrollbackされない。認証成功後のセッション変更やログアウト時のセッション無効化もDB rollbackの対象外。
 - POST `/api/transactions` のタイムアウトでは外部側の登録結果が不明な場合がある。外部状態はローカルrollbackされず、同じ `requestId` の再送で重複登録を抑止する。
-*** End Patch
+- POST `/api/applications` は `ApplicationService.create()` の業務TXで申請と利用言語を保存し、成功監査のみを `REQUIRES_NEW` で記録する。入力検証・時刻/期間検証の失敗では失敗監査を記録しない。利用言語行のINSERT発行時点はJPAのflushタイミングに依存し、実行時には未確認。

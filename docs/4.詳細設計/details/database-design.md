@@ -105,7 +105,7 @@ erDiagram
 | `detail` | String | VARCHAR(500) | 可 | 操作詳細 |
 | `result` | String | VARCHAR(20) | 不可 | 結果文字列 |
 
-現行実装で確認できるactionは `LOGIN`, `LOGOUT`, `USER_CREATE`, `USER_UPDATE`, `USER_DISABLE`, `TX_REGISTER`。resultは成功/失敗を表す文字列として保存される。
+現行実装で確認できるactionは `LOGIN`, `LOGOUT`, `USER_CREATE`, `USER_UPDATE`, `USER_DISABLE`, `TX_REGISTER`, `APPLICATION_CREATE`（成功のみ記録）。resultは成功/失敗を表す文字列として保存される。
 
 ## 6. `application_request`・`application_request_language`
 

@@ -5,7 +5,7 @@
 | 項目 | 内容 |
 |---|---|
 | 文書ID | D-FLOW |
-| 対象 | ログイン、ユーザ管理、取引参照・登録の主要処理順 |
+| 対象 | ログイン、ユーザ管理、取引参照・登録、申請登録の主要処理順 |
 | API契約 | [API詳細設計](api-design.md) |
 | 認証 | [認証・認可詳細設計](security-design.md) |
 | 外部連携 | [外部API連携詳細設計](external-api-design.md) |
@@ -137,12 +137,35 @@ sequenceDiagram
 
 POSTは更新系であるため自動再試行しない。失敗後の再送に同じrequestIdを用いる。Mock External APIは成功結果をメモリ上に保持し、成功済みIDへの再送では保存結果を返す。失敗応答はMock側に記録しない。
 
-## 6. 監査トランザクション
+## 6. 各種申請登録
+
+```mermaid
+sequenceDiagram
+    participant V as S-08 各種申請画面
+    participant C as ApplicationController
+    participant S as ApplicationService
+    participant DB as H2
+    participant A as AuditService
+
+    V->>C: POST /api/applications
+    C->>C: @Valid検証（失敗は400）
+    C->>S: create(request, operator)
+    S->>S: 時刻・期間の前後関係検証（失敗は409）
+    S->>DB: application_request / 利用言語を保存
+    S->>A: APPLICATION_CREATE SUCCESS（REQUIRES_NEW）
+    S-->>C: ApplicationResponse
+    C-->>V: 200
+```
+
+外部APIは使用しない。トランザクション境界は[トランザクション制御設計 §5.5](transaction-control-design.md)を参照。
+
+## 7. 監査トランザクション
 
 `AuditService.record()` は `Propagation.REQUIRES_NEW` で監査行を保存する。このため呼出元の業務トランザクションとは独立する。記録できる失敗範囲は呼出し箇所に依存し、全例外を自動記録する仕組みではない。
 
-## 7. 参照元
+## 8. 参照元
 
+- [ApplicationService](../../../backend/src/main/java/com/example/backend/application/ApplicationService.java)
 - [AuthController](../../../backend/src/main/java/com/example/backend/auth/AuthController.java)
 - [UserService](../../../backend/src/main/java/com/example/backend/user/UserService.java)
 - [TransactionController](../../../backend/src/main/java/com/example/backend/transaction/TransactionController.java)

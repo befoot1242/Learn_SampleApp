@@ -55,6 +55,10 @@ Controller全体を包む共通トランザクション設定は確認できな�
 | `GET /api/transactions/{id}` | `ExternalApiClient.getWithRetry` | アプリ明示TXなし | なし | `GET /external/transactions/{id}` | 外部詳細応答を返却 | rollback表を参照 |
 | `POST /api/transactions` | `ExternalApiClient.post` | アプリ明示TXなし | なし | `POST /external/transactions` | 外部取引登録結果を受け取る | rollback表を参照 |
 | `POST /api/transactions` | `AuditService.record(TX_REGISTER)` | `REQUIRES_NEW` | `audit_log INSERT` | なし | TX_REGISTER監査TXをcommit | rollback表を参照 |
+| `POST /api/applications` | `ApplicationService.create` 時刻・期間の前後関係検証 | `REQUIRED` | なし | なし | 検証を通過して保存処理を続行 | rollback表を参照 |
+| `POST /api/applications` | `ApplicationService.create` | `REQUIRED` | `application_request INSERT` | なし | 業務TX commit | rollback表を参照 |
+| `POST /api/applications` | `ApplicationService.create` | `REQUIRED` | `application_request_language INSERT` | なし | 業務TX commit | rollback表を参照 |
+| `POST /api/applications` | `AuditService.record(APPLICATION_CREATE)` | `REQUIRES_NEW` | `audit_log INSERT` | なし | APPLICATION_CREATE監査TXをcommit | rollback表を参照 |
 
 同一の `REQUIRED` 行は同じServiceトランザクションに参加する。各行は、その境界で実行するDB操作または非DB副作用を1つだけ示す。
 
@@ -163,6 +167,14 @@ API別の具体的な例外発生点・例外型・rollback対象は、次節の
 | `POST /api/transactions` | 取引失敗監査commitが失敗する | commit例外（具体型は実行時依存） | AuditServiceのREQUIRES_NEW | `audit_log`へのTX_REGISTER失敗監査INSERT |
 | `POST /api/transactions` | 外部登録成功後の成功監査`save`が失敗する | `DataAccessException` | AuditServiceのREQUIRES_NEW | なし（監査INSERT未完了） |
 | `POST /api/transactions` | 外部登録成功後の成功監査commitが失敗する | commit例外（具体型は実行時依存） | AuditServiceのREQUIRES_NEW | `audit_log`へのTX_REGISTER成功監査INSERT |
+| `POST /api/applications` | JSON要求の解析に失敗する | `HttpMessageNotReadableException` | Controller到達前 | なし（DB更新なし） |
+| `POST /api/applications` | `@Valid`入力検証に失敗する | `MethodArgumentNotValidException` | ApplicationService TX開始前 | なし（書き込み前） |
+| `POST /api/applications` | 終了時刻が開始時刻より前 | `BusinessException`（INVALID_TIME_RANGE） | ApplicationServiceのREQUIRED TX | なし（保存前） |
+| `POST /api/applications` | 利用終了日が利用開始日より前 | `BusinessException`（INVALID_PERIOD） | ApplicationServiceのREQUIRED TX | なし（保存前） |
+| `POST /api/applications` | `application_request` / `application_request_language` INSERTが失敗する | `DataAccessException` | ApplicationServiceのREQUIRED TX | 先行INSERT済みの申請行（言語行失敗時） |
+| `POST /api/applications` | APPLICATION_CREATE監査`save`が失敗し業務TXへ伝播する | `DataAccessException` | AuditServiceのREQUIRES_NEW / ApplicationServiceのREQUIRED TX | `application_request`・`application_request_language`のINSERT |
+| `POST /api/applications` | APPLICATION_CREATE監査commitが失敗する | commit例外（具体型は実行時依存） | AuditServiceのREQUIRES_NEW | `audit_log`へのAPPLICATION_CREATE監査INSERT |
+| `POST /api/applications` | ApplicationService業務TXのcommitが失敗する | commit例外（具体型は実行時依存） | ApplicationServiceのREQUIRED TX | `application_request`・`application_request_language`のINSERT（監査行は残り得る） |
 
 `app_user` UPDATEのflush失敗は `UserService.update()` の業務TX全体をrollbackする。ロール変更時は、同じTXで先にINSERTした `role_history` も対象となる。
 
@@ -334,6 +346,33 @@ sequenceDiagram
 
 外部登録のcommitと監査DBのcommitは独立する。外部登録が成功した後に監査保存が失敗すると、外部データは残ったままAPIがエラーになる可能性がある。クライアントは同じ `requestId` で再送し、外部側の冪等処理により重複を抑止する。
 
+### 5.5 各種申請登録
+
+```mermaid
+sequenceDiagram
+    participant C as ApplicationController
+    participant S as ApplicationService (@Transactional REQUIRED)
+    participant DB as H2
+    participant A as AuditService (REQUIRES_NEW)
+
+    C->>C: @Validで要求を検証
+    C->>S: create(request, operator)
+    Note over S,DB: 業務TX開始
+    alt 時刻または期間の前後関係が不正
+        S-->>C: BusinessException (INVALID_TIME_RANGE / INVALID_PERIOD)
+        Note over S,DB: 保存前。失敗監査は記録しない
+    else 検証通過
+        S->>DB: application_request保存（利用言語を含む）
+        S->>A: APPLICATION_CREATE SUCCESS記録
+        Note over A,DB: 監査TXは業務TXから独立してcommit
+        A-->>S: 記録完了
+        S-->>C: ApplicationResponse
+        Note over S,DB: 正常終了後に業務TX commit
+    end
+```
+
+`ApplicationService.create()` はユーザ管理と同じく、成功監査を業務メソッドの末尾で記録する。監査保存が失敗すれば業務TXもrollbackし、監査commit後に業務commitが失敗した場合は成功監査だけが残る可能性がある。入力検証・時刻/期間検証の失敗は監査対象外。
+
 ## 6. HTTP応答とrollbackの対応
 
 | HTTP応答 | 発生例 | rollbackとの関係 |
@@ -341,7 +380,7 @@ sequenceDiagram
 | 400 | `@Valid` 入力検証、JSON不正 | Service TX開始前ならrollback対象TXなし |
 | 401 | ログイン失敗、未認証 | ログイン全体の明示的業務TXなし。失敗監査は別TX |
 | 403 | ADMIN権限不足 | Controller/Service処理前の拒否。UserService業務TXなし |
-| 409 | `BusinessException` | UserService境界をRuntimeExceptionで抜けるため業務TX rollback |
+| 409 | `BusinessException` | UserService/ApplicationService境界をRuntimeExceptionで抜けるため業務TX rollback（申請は保存前に発生） |
 | 4xx/5xx | 外部APIエラー正規化 | HTTP応答は外部例外を表す。ローカルの外部取引データTXはない |
 | 500 | 想定外例外・commit失敗 | 例外がUserServiceのTX完了前に発生すればrollback規則に従う。応答コードだけでは判定しない |
 
@@ -356,6 +395,7 @@ sequenceDiagram
 ## 8. 参照元
 
 - [UserService](../../../backend/src/main/java/com/example/backend/user/UserService.java)
+- [ApplicationService](../../../backend/src/main/java/com/example/backend/application/ApplicationService.java)
 - [AuditService](../../../backend/src/main/java/com/example/backend/audit/AuditService.java)
 - [AuthController](../../../backend/src/main/java/com/example/backend/auth/AuthController.java)
 - [AppUserDetailsService](../../../backend/src/main/java/com/example/backend/auth/AppUserDetailsService.java)

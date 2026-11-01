@@ -14,7 +14,7 @@
 | D-DB | [DB詳細設計](database-design.md) | H2に永続化するエンティティ、項目、制約、関連、初期データ |
 | D-SEC | [認証・認可詳細設計](security-design.md) | セッション、ログイン、CSRF、画面/API認可 |
 | D-EXT | [外部API連携詳細設計](external-api-design.md) | BFFとMock External APIの契約、タイムアウト、再試行、エラー正規化、冪等性 |
-| D-FLOW | [主要処理フロー詳細設計](processing-flow-design.md) | 認証、ユーザ管理、取引参照・登録の処理順とシーケンス |
+| D-FLOW | [主要処理フロー詳細設計](processing-flow-design.md) | 認証、ユーザ管理、取引参照・登録、申請登録の処理順とシーケンス |
 | D-TX | [APIトランザクション制御詳細設計](transaction-control-design.md) | APIごとの境界、コミット/ロールバック契機、監査・外部APIとの独立性 |
 | D-TX-MATRIX | [APIトランザクション一覧・rollback詳細設計](api-transaction-matrix.md) | 表の読み方、API×TX単位の俯瞰、例外発生点別のrollback対象 |
 

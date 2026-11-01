@@ -23,6 +23,7 @@
 |---|---:|---|---|
 | Spring Security未認証 | 401 | `code`, `message` | `UNAUTHORIZED` |
 | Spring Security権限不足 | 403 | `code`, `message` | `FORBIDDEN` |
+| CSRFトークン不正・欠落 | 403 | `code`, `message` | `CSRF_INVALID` |
 | 入力検証エラー | 400 | `code`, `message`, `fieldErrors` | `VALIDATION_ERROR` |
 | JSON形式不正 | 400 | `code`, `message` | `INVALID_BODY` |
 | 業務エラー | 409 | `code`, `message` | `DUPLICATE_USER`, `USER_NOT_FOUND`, `SELF_DISABLE` 等 |

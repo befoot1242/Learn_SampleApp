@@ -19,6 +19,12 @@
 - `BCryptPasswordEncoder` でパスワードを照合する。新規登録・Seederでは入力された平文を保存せずBCryptハッシュを保存する。
 - フォームログイン・HTTP Basic・Spring Security標準ログアウトは無効化され、`AuthController` がログイン/ログアウトを処理する。
 
+## 2.2 XSS・SQLインジェクション対策
+
+- Vueテンプレートの既定エスケープを使用し、`v-html`および`innerHTML`は使用しない。
+- DBアクセスはJPA Repositoryと名前付きパラメータを使用し、リクエスト値を含むSQL文字列を組み立てない。
+- 変更時は、Vueソースに`v-html`／`innerHTML`がないことと、DBアクセスで文字列連結によるSQLを導入していないことを確認する。
+
 ### 2.1 ログインシーケンス
 
 ```mermaid

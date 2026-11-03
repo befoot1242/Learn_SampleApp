@@ -12,6 +12,21 @@ export interface ApiError {
   fieldErrors?: Record<string, string>
 }
 
+export type DevelopmentTaskTab = 'requirements' | 'basic' | 'detail' | 'implementation' | 'remaining'
+
+export interface DevelopmentTaskSummary {
+  id: string
+  name: string
+  status: string
+  updatedDate: string
+}
+
+export interface DevelopmentTaskTabContent {
+  taskId: string
+  tab: DevelopmentTaskTab
+  content: string | null
+}
+
 export interface AppUser {
   id: number
   username: string

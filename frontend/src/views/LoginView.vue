@@ -33,6 +33,9 @@ async function onSubmit() {
     <div class="card login-card">
       <h1>取引管理システム</h1>
       <p class="text-sub">ユーザIDとパスワードを入力してログインしてください。</p>
+      <div v-if="route.query.logoutFailed === '1'" class="alert error" role="alert">
+        サーバーからのログアウトを確認できませんでした。再度ログインし、ログアウトをお試しください。
+      </div>
       <div v-if="errorMessage" class="alert error">{{ errorMessage }}</div>
       <form @submit.prevent="onSubmit">
         <div class="field">

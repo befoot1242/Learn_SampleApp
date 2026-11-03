@@ -10,6 +10,10 @@ const auth = useAuthStore()
     <h1>ホーム</h1>
     <p>{{ auth.user?.displayName }} さん、ようこそ。メニューから機能を選択してください。</p>
     <div class="menu-cards">
+      <router-link class="card menu-card" :to="{ name: 'development-tasks' }">
+        <h3>開発タスク一覧</h3>
+        <p class="text-sub">開発タスクの一覧と工程ごとの情報を参照します。</p>
+      </router-link>
       <router-link class="card menu-card" :to="{ name: 'transactions' }">
         <h3>取引一覧</h3>
         <p class="text-sub">外部システムの取引情報を検索・参照します。</p>

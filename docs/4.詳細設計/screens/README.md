@@ -6,6 +6,8 @@
 
 API契約・DBカラムの詳細は画面別資料に重複記載しない。[API・DB・認証・外部連携の詳細設計](../details/README.md)を参照する。
 
+画面イベントによるPiniaストアの参照・更新・破棄の詳細は[ストア状態管理詳細設計](../details/store-usage-report.md)を参照する。
+
 入力項目の文字種・入力形式は、[入力形式・文字種分類](input-character-types.md)の分類IDを使用して画面別設計書に記載する。
 
 ## 2. 画面一覧
@@ -20,6 +22,7 @@ API契約・DBカラムの詳細は画面別資料に重複記載しない。[AP
 | S-06 | 取引詳細 | `/transactions/:id` | USER、ADMIN | [取引詳細画面](transaction-detail.md) |
 | S-07 | 入力フォーム | `/input-form` | USER、ADMIN | [入力フォーム](input-form.md) |
 | S-08 | 各種申請フォーム | `/applications/entry` | USER、ADMIN | [各種申請フォーム](application-entry.md) |
+| S-09 / S-10 | 開発タスク一覧・詳細 | `/development-tasks`, `/development-tasks/:id` | USER、ADMIN | [開発タスク一覧・詳細](development-tasks.md) |
 
 共通資料: [入力形式・文字種分類](input-character-types.md)
 
@@ -32,7 +35,7 @@ API契約・DBカラムの詳細は画面別資料に重複記載しない。[AP
 | ヘッダー | アプリ名「取引管理システム」、ログインユーザの表示名とロール、ログアウトボタン |
 | サイドメニュー | ホーム、取引一覧、取引登録、入力フォーム、各種申請を表示。ユーザ管理はADMINのみ表示 |
 | コンテンツ | 各画面の見出しと画面固有の内容 |
-| ログアウト | `POST /api/auth/logout` を呼び出し、ログイン画面へ遷移 |
+| ログアウト | `POST /api/auth/logout` を呼び出し、成功・失敗にかかわらずローカル認証情報を消去しログイン画面へ遷移。失敗時はサーバー側のログアウトを確認できない旨を表示 |
 
 ログイン画面は共通レイアウトを使用しない。
 
@@ -42,7 +45,7 @@ API契約・DBカラムの詳細は画面別資料に重複記載しない。[AP
 - ADMIN専用画面にUSERがアクセスした場合はホームへ遷移する。サーバー側でもユーザ管理APIをADMINに限定する。
 - API呼び出しは [共通HTTPクライアント](../../../frontend/src/api/client.ts) を使い、base URLは `/api`、タイムアウトは30秒。`XSRF-TOKEN` Cookieを `X-XSRF-TOKEN` ヘッダーへ転記する。
 - APIエラーは `code`、`message`、`retryable`、`fieldErrors` を持つ `ApiError` として画面表示に利用する。通信タイムアウトと接続失敗は再試行可能なエラーに変換する。
-- 画面操作中にHTTP 401を受けた場合、画面側でセッションを期限切れとして扱い、ログイン画面へ遷移する。
+- 各画面が401を検知した場合のストア処理と例外は[ストア状態管理詳細設計](../details/store-usage-report.md)を参照する。ユーザ管理のロール履歴取得には例外がある。
 
 ## 5. 画面設計書
 

@@ -84,6 +84,8 @@
 | `POST /api/users/{id}/disable` | `AuditSuccessEvent(USER_DISABLE)` | `REQUIRED` | なし | 成功監査イベントを発行 | 業務TX commit後に監査記録を開始 | rollback詳細表を参照 |
 | `POST /api/users/{id}/disable` | `AuditSuccessEventListener.record(USER_DISABLE)` | commit後 / `REQUIRES_NEW` | `audit_log INSERT` | なし | USER_DISABLE監査TXをcommit | rollback詳細表を参照 |
 | `GET /api/users/{id}/role-history` | `UserService.roleHistories` | `readOnly=true` | `role_history SELECT` | なし | 履歴を返却し読取TXを終了 | rollback詳細表を参照 |
+| `GET /api/development-tasks` | `DevelopmentTaskRepository.findAll` | アプリ明示TXなし | `development_task SELECT` | なし | 一覧を返却 | 読取のみ |
+| `GET /api/development-tasks/{id}/tabs/{tab}` | `DevelopmentTaskRepository.findById` | アプリ明示TXなし | `development_task SELECT` | なし | タブ内容を返却 | 読取のみ |
 | `GET /api/transactions` | `ExternalApiClient.getWithRetry` | アプリ明示TXなし | なし | `GET /external/transactions` | 外部一覧応答を返却 | rollback詳細表を参照 |
 | `GET /api/transactions/{id}` | `ExternalApiClient.getWithRetry` | アプリ明示TXなし | なし | `GET /external/transactions/{id}` | 外部詳細応答を返却 | rollback詳細表を参照 |
 | `POST /api/transactions` | `ExternalApiClient.post` | アプリ明示TXなし | なし | `POST /external/transactions` | 外部取引登録結果を受け取る | rollback詳細表を参照 |
@@ -146,6 +148,9 @@
 | `POST /api/users/{id}/disable` | UserService業務TXのcommitが失敗する | commit例外（具体型は実行時依存） | UserServiceの`REQUIRED` TX | `app_user.status`の更新内容 |
 | `GET /api/users/{id}/role-history` | `role_history` SELECTがDB障害となる | `DataAccessException` | UserService.roleHistoriesの`readOnly` TX | なし（読み取りのみ） |
 | `GET /api/users/{id}/role-history` | readOnly TX終了処理が失敗する | TX終了例外（具体型は実行時依存） | UserService.roleHistoriesの`readOnly` TX | なし（読み取りのみ） |
+| `GET /api/development-tasks` | DB読取が失敗 | Repositoryの実行時例外 | Repository読取TX（Spring Data規約） | なし（読み取りのみ） |
+| `GET /api/development-tasks/{id}/tabs/{tab}` | タブ不正または対象なし | 400 `INVALID_TAB` または404 `TASK_NOT_FOUND` | 不正タブはDB処理前、対象なしはRepository読取後 | なし（読み取りのみ） |
+| `GET /api/development-tasks/{id}/tabs/{tab}` | DB読取が失敗 | Repositoryの実行時例外 | Repository読取TX（Spring Data規約） | なし（読み取りのみ） |
 | `GET /api/transactions` | 外部一覧APIがHTTPエラー応答を返す | `ExternalApiException`（normalizeでHTTP状態別に生成） | ローカル業務TXなし | なし（ローカルDB更新なし） |
 | `GET /api/transactions` | 外部一覧APIの通信障害が再試行上限に達する | `ExternalApiException`（EXTERNAL_UNAVAILABLE） | ローカル業務TXなし | なし（ローカルDB更新なし） |
 | `GET /api/transactions/{id}` | 外部詳細APIが404を返す | `ExternalApiException`（NOT_FOUND） | ローカル業務TXなし | なし（ローカルDB更新なし） |

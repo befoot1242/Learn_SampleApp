@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1540" viewBox="0 0 1200 1540" role="img" aria-labelledby="title description">
+  <title id="title">開発タスク一覧・詳細 画面イメージ案</title>
+  <desc id="description">ホームの入口、開発タスク一覧、要件タブを初期表示した詳細画面のワイヤーフレーム。項目とデータは仮。</desc>
+  <defs>
+    <style>
+      text { font-family: Meiryo, "Noto Sans CJK JP", sans-serif; fill: #25313d; }
+      .page { fill: #f4f6f8; stroke: #b8c2cc; stroke-width: 2; }
+      .top { fill: #14355c; }
+      .nav { fill: #e8edf2; }
+      .surface { fill: #fff; stroke: #c7d0d9; stroke-width: 1.5; }
+      .head { fill: #edf1f4; }
+      .line { stroke: #c7d0d9; stroke-width: 1; }
+      .accent { fill: #176b87; }
+      .title { font-size: 24px; font-weight: 700; }
+      .section { font-size: 20px; font-weight: 700; }
+      .label { font-size: 16px; }
+      .small { font-size: 14px; fill: #536170; }
+      .white { fill: #fff; }
+      .link { fill: #176b87; text-decoration: underline; }
+    </style>
+  </defs>
+  <rect width="1200" height="1540" fill="#e9edf1"/>
+  <text x="30" y="38" class="title">開発タスク一覧・詳細 | 画面イメージ案</text>
+  <text x="30" y="64" class="small">実画面ではありません。項目・内容・データは仮の例です。</text>
+
+  <g transform="translate(30 94)">
+    <text x="0" y="0" class="section">1. ホーム：一覧への入口</text>
+    <rect x="0" y="14" width="1140" height="340" rx="4" class="page"/>
+    <rect x="0" y="14" width="1140" height="42" class="top"/>
+    <text x="18" y="41" class="label white">取引管理システム</text>
+    <text x="927" y="41" class="small white">利用者　｜　ログアウト</text>
+    <rect x="0" y="56" width="190" height="298" class="nav"/>
+    <text x="18" y="88" class="label">ホーム</text>
+    <text x="18" y="120" class="label">取引一覧</text>
+    <text x="18" y="152" class="label">取引登録</text>
+    <text x="18" y="184" class="label">その他メニュー</text>
+    <text x="220" y="98" class="title">ホーム</text>
+    <text x="220" y="125" class="small">メニューから機能を選択してください。</text>
+    <rect x="220" y="150" width="250" height="120" rx="4" class="surface"/>
+    <text x="240" y="183" class="section">取引一覧</text>
+    <text x="240" y="212" class="small">取引情報を検索・参照</text>
+    <rect x="492" y="150" width="270" height="120" rx="4" class="surface"/>
+    <rect x="492" y="150" width="270" height="6" class="accent"/>
+    <text x="512" y="183" class="section">開発タスク一覧 →</text>
+    <text x="512" y="212" class="small">開発タスクを一覧・詳細で参照</text>
+  </g>
+
+  <g transform="translate(30 485)">
+    <text x="0" y="0" class="section">2. 開発タスク一覧：タスクを選択</text>
+    <rect x="0" y="14" width="1140" height="380" rx="4" class="page"/>
+    <rect x="0" y="14" width="1140" height="42" class="top"/>
+    <text x="18" y="41" class="label white">取引管理システム</text>
+    <text x="927" y="41" class="small white">利用者　｜　ログアウト</text>
+    <rect x="0" y="56" width="190" height="338" class="nav"/>
+    <text x="18" y="88" class="label">ホーム</text>
+    <text x="18" y="120" class="label">取引一覧</text>
+    <text x="18" y="152" class="label">取引登録</text>
+    <text x="220" y="98" class="title">開発タスク一覧</text>
+    <text x="220" y="127" class="small">タスク名を選択すると詳細を表示します。</text>
+    <rect x="220" y="150" width="890" height="166" class="surface"/>
+    <rect x="220" y="150" width="890" height="42" class="head"/>
+    <line x1="220" y1="192" x2="1110" y2="192" class="line"/>
+    <line x1="220" y1="254" x2="1110" y2="254" class="line"/>
+    <text x="238" y="177" class="label">タスクID</text>
+    <text x="385" y="177" class="label">タスク名</text>
+    <text x="770" y="177" class="label">状態</text>
+    <text x="925" y="177" class="label">更新日</text>
+    <text x="238" y="229" class="label">DT-001</text>
+    <text x="385" y="229" class="label link">取引検索の改善</text>
+    <text x="770" y="229" class="label">進行中</text>
+    <text x="925" y="229" class="label">2026-10-30</text>
+    <text x="238" y="291" class="label">DT-002</text>
+    <text x="385" y="291" class="label link">申請画面の見直し</text>
+    <text x="770" y="291" class="label">未着手</text>
+    <text x="925" y="291" class="label">2026-10-28</text>
+  </g>
+
+  <g transform="translate(30 915)">
+    <text x="0" y="0" class="section">3. 開発タスク詳細：初期表示は「要件」</text>
+    <rect x="0" y="14" width="1140" height="550" rx="4" class="page"/>
+    <rect x="0" y="14" width="1140" height="42" class="top"/>
+    <text x="18" y="41" class="label white">取引管理システム</text>
+    <text x="927" y="41" class="small white">利用者　｜　ログアウト</text>
+    <rect x="0" y="56" width="190" height="494" class="nav"/>
+    <text x="18" y="88" class="label">ホーム</text>
+    <text x="18" y="120" class="label">取引一覧</text>
+    <text x="18" y="152" class="label">取引登録</text>
+    <text x="220" y="98" class="title">開発タスク詳細</text>
+    <text x="220" y="129" class="small">タスクID：DT-001</text>
+    <rect x="220" y="150" width="120" height="44" class="accent"/>
+    <text x="263" y="179" class="label white">要件</text>
+    <rect x="340" y="150" width="120" height="44" class="surface"/>
+    <text x="383" y="179" class="label">基本</text>
+    <rect x="460" y="150" width="120" height="44" class="surface"/>
+    <text x="503" y="179" class="label">詳細</text>
+    <rect x="580" y="150" width="120" height="44" class="surface"/>
+    <text x="623" y="179" class="label">実装</text>
+    <rect x="700" y="150" width="140" height="44" class="surface"/>
+    <text x="735" y="179" class="label">残タスク</text>
+    <rect x="220" y="194" width="890" height="237" class="surface"/>
+    <text x="245" y="232" class="section">要件</text>
+    <text x="245" y="272" class="label">取引検索の改善</text>
+    <text x="245" y="309" class="small">目的や対象範囲など、選択したタブの情報を表示します。</text>
+    <text x="245" y="345" class="small">表示項目・資料リンクなどの内容は今後決定します。</text>
+    <rect x="220" y="455" width="150" height="42" rx="3" class="surface"/>
+    <text x="241" y="482" class="label">一覧へ戻る</text>
+  </g>
+</svg>

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { fetchMe, login as apiLogin, logout as apiLogout } from '../api/auth'
 import type { CurrentUser } from '../types'
+import { useDevelopmentTaskStore } from './developmentTask'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -27,6 +28,7 @@ export const useAuthStore = defineStore('auth', {
       this.user = await apiLogin(username, password)
     },
     async logout() {
+      useDevelopmentTaskStore().clear()
       try {
         await apiLogout()
       } finally {
@@ -35,6 +37,7 @@ export const useAuthStore = defineStore('auth', {
     },
     /** 401検知時にセッション切れとしてクリアする。 */
     markSessionExpired() {
+      useDevelopmentTaskStore().clear()
       this.user = { authenticated: false }
     },
   },

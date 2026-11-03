@@ -67,6 +67,8 @@
 | 成功 | 200 `{ "message": "ログアウトしました" }` |
 | 副作用 | HTTPセッション無効化、SecurityContext消去、監査ログ記録 |
 
+開発タスク一覧・タブ別取得APIの契約は[開発タスク技術詳細設計](development-task-design.md)を参照する。
+
 ## 4. 取引API
 
 ### 4.1 一覧

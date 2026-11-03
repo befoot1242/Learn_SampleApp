@@ -17,6 +17,8 @@
 | D-FLOW | [主要処理フロー詳細設計](processing-flow-design.md) | 認証、ユーザ管理、取引参照・登録、申請登録の処理順とシーケンス |
 | D-TX | [APIトランザクション制御詳細設計](transaction-control-design.md) | APIごとの境界、コミット/ロールバック契機、監査・外部APIとの独立性 |
 | D-TX-MATRIX | [APIトランザクション一覧・rollback詳細設計](api-transaction-matrix.md) | 表の読み方、API×TX単位の俯瞰、例外発生点別のrollback対象 |
+| D-DT | [開発タスク技術詳細設計](development-task-design.md) | 開発タスクのAPI、DB、初期データ |
+| D-STORE | [ストア状態管理詳細設計](store-usage-report.md) | 画面イベントとPiniaストアの参照・更新・破棄、ストア固有の振る舞い |
 
 ## 3. 共通の読み方
 
@@ -24,3 +26,4 @@
 - テーブル項目や制約を確認する場合はD-DBを参照する。画面項目との対応は[各画面設計書](../screens/README.md)を参照する。
 - 認証・認可境界はD-SECを参照する。画面遷移条件の概要は[基本設計書](../../3.基本設計/basic-design.md)に記載する。
 - 処理の時系列はD-FLOWを参照する。個別画面の表示・操作は画面別詳細設計に記載する。
+- Piniaストアの保持値、画面イベント別の利用および破棄条件はD-STOREを正本とする。

@@ -44,14 +44,14 @@ flowchart LR
 |---|---|---|
 | Frontend | 画面表示、入力、クライアント側ルーティング、BFF呼び出し | Vue 3、TypeScript、Vite。開発時ポート5173 |
 | Backend / BFF | 認証・認可、ユーザ管理、監査記録、取引API中継、外部エラー正規化 | Spring Boot。ポート8080 |
-| H2 | ユーザ、ロール履歴、監査ログの永続化 | ファイルDB `./data/appdb` |
+| H2 | ユーザ、ロール履歴、監査ログ、申請、開発タスクの永続化 | ファイルDB `./data/appdb` |
 | Mock External API | 取引一覧・詳細・登録APIの提供 | Spring Boot。ポート9090。取引データはインメモリ |
 
 ### 2.2 利用者と権限
 
 | ロール | 利用可能な機能 |
 |---|---|
-| USER | ホーム、取引一覧・詳細、取引登録、入力フォーム、各種申請 |
+| USER | ホーム、取引一覧・詳細、取引登録、入力フォーム、各種申請、開発タスク一覧・詳細 |
 | ADMIN | USERの機能に加え、ユーザ管理 |
 
 認可は画面メニュー、Vue Routerガード、Spring Security API認可の複数箇所で行う。APIの認可を最終的な制御とする。
@@ -69,6 +69,7 @@ flowchart LR
 | F-07 | 取引登録 | 確認モーダルで入力内容を確定後、外部APIへ登録する。冪等性キーで重複登録を抑止する | USER、ADMIN |
 | F-08 | 監査記録 | 認証、ユーザ操作、取引登録の結果を記録する | システム |
 | F-09 | 各種申請登録 | 多様な形式の入力内容を検証し、確認モーダルで内容を確定後にH2へ保存する | USER、ADMIN |
+| F-10 | 開発タスク参照 | 一覧と5タブの詳細を参照する。[専用基本設計](development-task-basic-design.md)を参照 | USER、ADMIN |
 
 ### 3.1 画面一覧
 
@@ -82,6 +83,8 @@ flowchart LR
 | S-06 | 取引詳細 | `/transactions/:id` | 必要 | USER以上 | 取引詳細表示 |
 | S-07 | 入力フォーム | `/input-form` | 必要 | USER以上 | 保存しない入力検証サンプル |
 | S-08 | 各種申請フォーム | `/applications/entry` | 必要 | USER以上 | 多様な入力項目を確認後にH2へ登録 |
+| S-09 | 開発タスク一覧 | `/development-tasks` | 必要 | USER以上 | 開発タスクの一覧 |
+| S-10 | 開発タスク詳細 | `/development-tasks/:id` | 必要 | USER以上 | 工程別の5タブを表示 |
 
 共通レイアウトはログイン後の画面にヘッダー、ログアウト操作、左側メニュー、画面本文を表示する。ユーザ管理メニューはADMINにのみ表示する。
 
@@ -103,6 +106,8 @@ flowchart TD
     Detail[取引詳細]
     InputForm[入力フォーム]
     Application[各種申請]
+    DevList[開発タスク一覧]
+    DevDetail[開発タスク詳細]
 
     Login -->|認証成功| Home
     Home --> Users
@@ -110,6 +115,9 @@ flowchart TD
     Home --> Entry
     Home --> InputForm
     Home --> Application
+    Home --> DevList
+    DevList --> DevDetail
+    DevDetail --> DevList
     List --> Detail
     Detail --> List
     Home -->|ログアウト| Login
@@ -119,6 +127,8 @@ flowchart TD
     InputForm -->|ログアウト| Login
     Application -->|ログアウト| Login
     Detail -->|ログアウト| Login
+    DevList -->|ログアウト| Login
+    DevDetail -->|ログアウト| Login
     Home -. 未認証 .-> Login
     Users -. ADMIN以外 .-> Home
 ```
@@ -137,6 +147,8 @@ flowchart TD
 | ログアウト | `POST /api/auth/logout` | セッションを無効化 | 認証必須 |
 | セッション確認 | `GET /api/auth/me` | 認証状態・ユーザ情報を返す | 公開 |
 | 取引一覧 | `GET /api/transactions` | 条件・ページ指定で外部APIから取得 | 認証必須 |
+| 開発タスク一覧 | `GET /api/development-tasks` | H2から一覧を取得 | 認証必須 |
+| 開発タスクタブ | `GET /api/development-tasks/{id}/tabs/{tab}` | H2からタブ別内容を取得 | 認証必須 |
 | 取引詳細 | `GET /api/transactions/{id}` | 外部APIから詳細を取得 | 認証必須 |
 | 取引登録 | `POST /api/transactions` | 入力を検証し、外部APIへ登録 | 認証必須 |
 | 各種申請登録 | `POST /api/applications` | 入力を検証し、H2へ登録 | 認証必須 |
@@ -177,6 +189,7 @@ Mock External APIの取引データはインメモリであり、プロセス再
 | 監査ログ | 認証・ユーザ操作・取引登録・申請登録の記録 | H2 `audit_log` |
 | 各種申請 | 各種申請（S-08）の登録内容 | H2 `application_request` |
 | 各種申請の利用言語 | 申請に紐づく利用言語（複数） | H2 `application_request_language` |
+| 開発タスク | 開発タスク一覧・タブ別内容 | H2 `development_task` |
 | 取引 | 取引一覧・詳細・登録 | Mock External APIのメモリ上 |
 
 取引データはBackendのH2には保存しない。各テーブルのカラム、制約、関連、監査ログの記録対象は[DB詳細設計](../4.詳細設計/details/database-design.md)に記載する。

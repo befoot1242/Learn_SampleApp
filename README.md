@@ -52,6 +52,7 @@ npm run dev
 - **認証**: セッションベースのログイン/ログアウト(HttpOnly Cookie + CSRFトークン)
 - **認可**: ロールベース制御(ユーザ管理は管理者のみ。画面メニュー・ルーターガード・API両方で制御)
 - **ユーザ管理**: 検索/新規登録/編集/無効化、ロール変更履歴の保存・表示
+- **開発タスク参照**: ホームから一覧・5タブの詳細を表示。タブ情報は詳細画面内で一時保持し、画面離脱またはログアウト時に破棄。H2のタスクが0件なら起動時にサンプル2件を投入する。実データの登録・編集機能はない
 - **取引一覧/詳細**: 条件検索(日付・状態・取引先)、ページング、外部API障害時の再試行導線
 - **取引登録**: 必須チェック → 確認ダイアログ → 登録 → 受付番号表示。失敗時は入力保持+エラー理由表示
   - 重複送信防止: フロントで採番したリクエストIDを外部APIが冪等に処理
@@ -77,4 +78,5 @@ npm run dev
 
 - H2コンソール: http://localhost:8080/h2-console (JDBC URL: `jdbc:h2:file:./data/appdb;MODE=LEGACY`)
 - ビルド: `.\gradlew.bat build`(Java)、`cd frontend && npm run build`(型チェック込み)
+- 開発タスクのテスト: `.\gradlew.bat :backend:test --tests com.example.backend.developmenttask.DevelopmentTaskApiTest`、`cd frontend; node --test tests\developmentTask.test.mjs`
 - Spring Boot 4系のため、スターター名は `spring-boot-starter-webmvc`、JSONは Jackson 3(`tools.jackson`)

@@ -1,13 +1,24 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
 const auth = useAuthStore()
 const router = useRouter()
+const loggingOut = ref(false)
 
 async function onLogout() {
-  await auth.logout()
-  router.push({ name: 'login' })
+  if (loggingOut.value) return
+  loggingOut.value = true
+  let logoutFailed = false
+  try {
+    await auth.logout()
+  } catch {
+    logoutFailed = true
+  } finally {
+    loggingOut.value = false
+  }
+  await router.push({ name: 'login', query: logoutFailed ? { logoutFailed: '1' } : {} })
 }
 </script>
 
@@ -22,7 +33,7 @@ async function onLogout() {
           {{ auth.isAdmin ? '管理者' : '一般' }}
         </span>
       </span>
-      <button @click="onLogout">ログアウト</button>
+      <button :disabled="loggingOut" @click="onLogout">ログアウト</button>
     </header>
     <div class="body">
       <nav class="menu">
